@@ -1,6 +1,6 @@
-# AgentsSelfEvolution
+# SEA
 
-可持续进化 Agent 的构建研究 + 可落地基础设施。
+可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
 **当前版本**：`0.1.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
 

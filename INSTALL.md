@@ -1,6 +1,6 @@
-# INSTALL.md — AgentsSelfEvolution 安装指南
+﻿# INSTALL.md — SEA 安装指南
 
-把 AgentsSelfEvolution 安装到某个目标工作区（如 `E:\TempOpenWork`），使其 agent 获得"可持续进化"能力。
+把 SEA 安装到某个目标工作区（如 `E:\TempOpenWork`），使其 agent 获得"可持续进化"能力。
 
 ## 安装内容
 
@@ -21,7 +21,7 @@
 ### 步骤
 1. 复制技能到全局技能库：
    ```powershell
-   $src = "<AgentsSelfEvolution 路径>\skills"
+   $src = "<SEA 路径>\skills"
    Copy-Item -LiteralPath "$src\task-retrospective" -Destination "$env:USERPROFILE\.config\opencode\skills\" -Recurse -Force
    Copy-Item -LiteralPath "$src\skill-craft"        -Destination "$env:USERPROFILE\.config\opencode\skills\" -Recurse -Force
    Copy-Item -LiteralPath "$src\agent-improvement"  -Destination "$env:USERPROFILE\.config\opencode\skills\" -Recurse -Force
@@ -29,7 +29,7 @@
    ```
 2. 复制运行时包与纪律到目标工作区：
    ```powershell
-   $proj = "<AgentsSelfEvolution 路径>"
+   $proj = "<SEA 路径>"
    $dst  = "<目标工作区，如 E:\TempOpenWork>"
    Copy-Item -LiteralPath "$proj\SEA"       -Destination $dst -Recurse -Force
    Copy-Item -LiteralPath "$proj\AGENTS.md" -Destination $dst -Force
@@ -58,7 +58,7 @@
 ### 步骤
 1. 复制技能与演进注册表到工作区技能库：
    ```powershell
-   $proj = "<AgentsSelfEvolution 路径>"
+   $proj = "<SEA 路径>"
    $dst  = "<目标工作区，如 E:\TempOpenWork>"
    New-Item -ItemType Directory -Path "$dst\.opencode\skills" -Force | Out-Null
    Copy-Item -LiteralPath "$proj\skills\task-retrospective" -Destination "$dst\.opencode\skills\" -Recurse -Force
@@ -102,14 +102,14 @@
 
 ## 指定路径与询问机制
 
-安装时 agent 只需知道 **AgentsSelfEvolution 仓库路径**（如 `E:\GitHub\AgentsSelfEvolution`），随后：
+安装时 agent 只需知道 **SEA 仓库路径**（如 `E:\GitHub\SEA`），随后：
 
 1. **询问安装方式**：`技能安装到全局（~/.config/opencode/skills/）还是目标工作区（.opencode/skills/）？`
 2. 询问目标工作区路径（若未提供）：`目标工作区路径是？`
 3. 按所选方式执行上述复制命令（路径自动拼接）
 4. 复跑校验确认
 
-> 提示：若 AgentsSelfEvolution 不在固定路径，可在安装时用绝对路径替换 `<AgentsSelfEvolution 路径>` 占位符；技能正文中的 `SEA/` 前缀与仓库位置无关，只依赖工作区内的 `SEA/` 目录。
+> 提示：若 SEA 不在固定路径，可在安装时用绝对路径替换 `<SEA 路径>` 占位符；技能正文中的 `SEA/` 前缀与仓库位置无关，只依赖工作区内的 `SEA/` 目录。
 
 ## 验证安装是否成功
 
