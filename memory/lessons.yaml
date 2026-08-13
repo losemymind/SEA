@@ -34,3 +34,25 @@ entries:
     hits: 8
     last_used: 2026-08-13
     source: self-reflect
+
+  - id: m-20260813-004
+    type: fact
+    category: engineering
+    claim: 本仓库 YAML 文件（lessons/preferences/verified_facts）顶部说明行必须以 # 注释开头，否则 YAML 解析报 mapping values are not allowed here
+    evidence: ["复制测试中 lessons.yaml 与 verified_facts.yaml 各失败一次，加 # 后通过"]
+    contrast: 失败侧——说明行未加 # 导致两个校验脚本双双报错
+    confidence: 0.95
+    hits: 2
+    last_used: 2026-08-13
+    source: self-reflect
+
+  - id: m-20260813-005
+    type: strategy
+    category: experience
+    claim: 复制进化运行时到工作区后，技能存在 skills/（脚本校验用）与 .opencode/skills/（agent 加载用）双份拷贝，改动技能时必须两处同步
+    evidence: [复制测试确认两目录均含 4 技能，validate-skill.py 校验根目录 skills/]
+    contrast: 失败侧——若只改一处，脚本与运行时行为不一致
+    confidence: 0.9
+    hits: 1
+    last_used: 2026-08-13
+    source: self-reflect
