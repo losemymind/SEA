@@ -2,13 +2,4 @@
 
 # 按 templates/lesson-schema.yaml 的 schema 编写。
 
-entries:
-  - id: m-20260813-010
-    type: preference
-    category: preference
-    claim: 完成任务后必须生成单元测试，并给出验证命令
-    evidence: [用户多次在会话中要求]
-    confidence: 0.9
-    hits: 5
-    last_used: 2026-08-13
-    source: user-correct
+entries: []

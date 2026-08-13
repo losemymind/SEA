@@ -2,6 +2,13 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 2026-08-13 — 清除全部演示条目
+
+- 回退到 02eb0b2 后，随 1873763 一并回退的演示条目重新出现，本次彻底清除
+- **移除**：lessons m-001/002/003（初始种子示例）、preferences m-010（虚构偏好）、verified_facts f-003（`verified:false` 演示）、improvements im-001（模板示例）、baselines AGENTS.md 占位、evolutions evo-001（初始示例）
+- **保留**：lessons m-004/005（真实复制测试沉淀）、verified_facts f-001/002（真实已核实事实）
+- **验证**：validate-memory 0 / dedup 0 / improvements 0 / verify-versions 0（WARN 消失）/ validate-skill 0
+
 ## 0.1.0 — 2026-08-13 — P0 框架版本与兼容性
 
 - **版本机制**：新增顶层 `VERSION` 与 `SEA/VERSION`（随运行时进入工作区，版本一致）

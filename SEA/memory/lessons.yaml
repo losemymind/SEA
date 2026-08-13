@@ -1,40 +1,8 @@
 # lessons.yaml — 经验教训 / 策略 / 事实
 
-# 按 templates/lesson-schema.yaml 的 schema 编写。每条须通过 `scripts/validate-memory.py` 校验。
+# 按 templates/lesson-schema.yaml 的 schema 编写。每条须通过 `SEA/scripts/validate-memory.py` 校验。
 
 entries:
-  - id: m-20260813-001
-    type: strategy
-    category: experience
-    claim: 处理 UE 复制漂移时，先核对 DOREPLIFETIME 与 GetLifetimeReplicatedProps 的一致性，再查 OnRep
-    evidence: [session 2026-0813, grep GetLifetimeReplicatedProps 通过]
-    contrast: 失败侧——只查 OnRep 未查注册表导致误判
-    confidence: 0.9
-    hits: 3
-    last_used: 2026-08-13
-    source: self-reflect
-
-  - id: m-20260813-002
-    type: fact
-    category: engineering
-    claim: UE 5.8 中 Iris 复制启用形式是 .uproject 的 Iris 插件 + SetupIrisSupport(Target) + -UseIrisReplication=1，仅链接模块不会启用
-    evidence: [官方 5.8 Iris 文档, 项目编译验证]
-    confidence: 0.85
-    hits: 2
-    last_used: 2026-08-13
-    source: tool-feedback
-
-  - id: m-20260813-003
-    type: strategy
-    category: experience
-    claim: 断言 UE API 前先确认项目引擎小版本，再对照本地引擎源码或官方文档；无法核实则明说
-    evidence: [unreal-systems-engineer.md 版本纪律, 历史核实会话]
-    contrast: 失败侧——直接断言导致 5.4 时代 API 在 5.8 误用
-    confidence: 0.95
-    hits: 8
-    last_used: 2026-08-13
-    source: self-reflect
-
   - id: m-20260813-004
     type: fact
     category: engineering

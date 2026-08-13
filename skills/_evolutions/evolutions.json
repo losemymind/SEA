@@ -1,22 +1,5 @@
 {
   "schema_version": 1,
   "description": "技能候选演进注册表。此文件中的条目未生效，是待评估/待审批的提案。solidify 后合并回对应 SKILL.md。",
-  "evolutions": [
-    {
-      "id": "evo-20260813-001",
-      "skill": "task-retrospective",
-      "kind": "FIX",
-      "signal": {
-        "type": "user-correct",
-        "detail": "用户指出：任务收尾时只蒸馏策略，未检查已有记忆是否可复用，导致重复沉淀"
-      },
-      "proposal": "在 Reflect 步骤第 2 问增加：检索既有 memory/ 条目，先判断本次经验是否已被覆盖",
-      "status": "pending",
-      "created": "2026-08-13",
-      "solidified_at": null,
-      "evidence": [],
-      "score_before": null,
-      "score_after": null
-    }
-  ]
+  "evolutions": []
 }
