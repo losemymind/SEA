@@ -52,3 +52,16 @@
 
 - 断言任何 API/功能状态前，先确认环境版本，再对照权威来源
 - 每条领域事实尽量标注适用版本；发现失效事实 → 移到 deprecated → 走修订流程
+
+## 技能生命周期（Phase 2）
+
+技能影响未来行为，必须过质量门与审批：
+
+1. **候选先入 `skills/_evolutions/evolutions.json`**（status=pending，未生效）
+2. **评估**（独立于生成）：结构侧 + 效果侧（在技能自带的 `test-prompts.json` 上跑）
+3. **HITL 审批**：展示 diff + 分数变化（`score_before`/`score_after`）→ 人工确认
+4. **solidify**：通过才合并回 `SKILL.md`（失败类→`Troubleshooting`；用户纠正→`Examples`），状态置 solidified
+5. **棘轮**：新分数不高于 `score_before` → 移除改动，状态置 reverted；基线单调不降
+6. **供应链审计**（solidify 前必查）：不读取敏感路径、不执行危险命令、不下载远程脚本、不写 secret、不污染其他技能/记忆
+
+每次创建/演进技能后跑 `python scripts/validate-skill.py` 校验。

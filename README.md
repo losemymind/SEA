@@ -10,11 +10,11 @@
 
 | 路径 | 用途 |
 |---|---|
-| `AGENTS.md` | 常驻注入的纪律：硬规则、五步进化闭环、任务收尾协议、记忆写入守则、分级权限 |
+| `AGENTS.md` | 常驻注入的纪律：硬规则、五步进化闭环、任务收尾协议、记忆写入守则、分级权限、技能生命周期 |
 | `memory/` | 长期记忆库（lessons / preferences / NOTES） |
-| `skills/` | 技能资产源（可复制到 `.opencode/skills/` 后即可被调用） |
-| `templates/` | 记忆条目 schema、子 agent 定义模板、技能模板 |
-| `scripts/` | 记忆校验与查重脚本（Python，零额外依赖除 PyYAML） |
+| `skills/` | 技能资产库：`task-retrospective`（收尾反思）、`skill-craft`（技能创建/演进）、`_evolutions/`（候选演进注册表） |
+| `templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema |
+| `scripts/` | 记忆校验/查重 + 技能校验脚本（Python，零额外依赖除 PyYAML） |
 | `CHANGELOG.md` | 进化留痕 |
 | `sustainable-agent-research.md` | 设计文档（研究结论 + 未来计划） |
 
@@ -33,6 +33,9 @@ python scripts/validate-memory.py
 # 检测近重复条目（可传相似度阈值，默认 0.6）
 python scripts/dedup-check.py
 python scripts/dedup-check.py 0.5
+
+# 校验技能 frontmatter 与候选演进注册表
+python scripts/validate-skill.py
 ```
 
 ## 核心原则（速记）

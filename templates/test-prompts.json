@@ -1,0 +1,29 @@
+# 技能评测集 schema（authoritative）
+# 每个技能可携带 test-prompts.json，作为该技能效果评估的测试提示集。
+# 用途：棘轮对比 score_before / score_after；进化时判断改动是否变好。
+
+# 顶层字段：
+#   schema_version  整数
+#   skill           技能名（kebab-case）
+#   description     本评测集说明
+#   prompts         数组，每个用例：
+#     id            用例 id
+#     task          给技能的输入提示（触发该技能的任务描述）
+#     expect        期望产出（描述性；可由评估器判断）
+#     category      success | failure | boundary（成功/失败/边界用例）
+#     min_score     可选，该用例的最低通过分（0.0~1.0）
+
+{
+  "schema_version": 1,
+  "skill": "example-skill",
+  "description": "示例评测集",
+  "prompts": [
+    {
+      "id": "p-001",
+      "task": "描述一个会触发该技能的任务",
+      "expect": "期望的技能执行结果",
+      "category": "success",
+      "min_score": 0.7
+    }
+  ]
+}
