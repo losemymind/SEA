@@ -88,3 +88,10 @@
 - **先核实再断言**：`verified: false` 或 `status: deprecated` 的事实不得作为断言依据
 - 失效事实 → 标记 deprecated（含原因）→ 触发 agent-improvement 修正依赖它的定义
 - 生命周期：active(re-verify 更新 verified_on) ──失效──► deprecated
+
+## 框架版本纪律（P0）
+
+- 框架版本以 `VERSION` 为准，`SEA/VERSION` 必须与之一致（`python SEA/scripts/framework-version.py --check` 校验）
+- **修改框架本身（技能/脚本/AGENTS.md/SEA 结构）时必须递增版本**，破坏性变更标 `[BREAKING]`
+- 升级后检查已安装工作区是否过期：`python SEA/scripts/framework-version.py --installed <工作区>`
+- 已安装工作区版本滞后 = 过期，需按 INSTALL.md 升级流程重新同步 SEA/ 与 AGENTS.md

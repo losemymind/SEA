@@ -114,3 +114,35 @@
 ## 验证安装是否成功
 
 在目标工作区执行 `python SEA/scripts/validate-memory.py` 输出 `OK：3 个文件校验通过。`，且 `AGENTS.md` 存在，即安装成功。
+
+---
+
+## 框架升级流程（P0 版本兼容性）
+
+框架使用 `VERSION` 文件管理版本（顶层与 `SEA/VERSION` 保持一致；`SEA/VERSION` 随运行时进入工作区）。升级必须遵循以下纪律：
+
+### 升级前检查已装工作区
+```powershell
+# 列出/检查已安装工作区是否过期（在框架仓库根目录运行）
+python SEA/scripts/framework-version.py --installed E:\TempOpenWork
+```
+
+### 升级步骤（改动框架本身时）
+1. **修改版本**：按语义化版本递增 `VERSION` 与 `SEA/VERSION`（两处一致）
+2. **记录**：更新 `SEA/CHANGELOG.md`（改动内容、破坏性变更标记）
+3. **自检**：`python SEA/scripts/framework-version.py --check`（两处版本一致）+ 复跑全部校验脚本
+4. **同步已装工作区**：对所有已安装工作区执行
+   ```powershell
+   python SEA/scripts/framework-version.py --installed <工作区>   # 确认过期
+   # 按安装方式重新复制 SEA/ 与 AGENTS.md（必要时重新复制技能）
+   ```
+5. **破坏性变更**（技能正文路径、AGENTS.md 结构、脚本参数）必须在 CHANGELOG 标注 `[BREAKING]`，并提示工作区重新同步
+
+### 版本规则
+- **主版本**：破坏性结构变更（目录布局、路径约定、脚本 CLI 不兼容）
+- **次版本**：新增机制/技能，向后兼容
+- **补丁**：修复/文档，无行为变化
+- 已安装工作区版本滞后即视为"过期"，用 `framework-version.py --installed` 检测
+
+### 为什么需要版本纪律
+框架一旦安装到工作区，技能正文 `SEA/` 前缀、AGENTS.md 结构、脚本参数就成了**对外契约**。没有版本号，未来升级会悄悄破坏已装工作区且无处追责；有了版本号，升级变得可检测、可回滚、可通知。

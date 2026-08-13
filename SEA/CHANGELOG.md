@@ -2,6 +2,13 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.1.0 — 2026-08-13 — P0 框架版本与兼容性
+
+- **版本机制**：新增顶层 `VERSION` 与 `SEA/VERSION`（随运行时进入工作区，版本一致）
+- **脚本**：`SEA/scripts/framework-version.py`（打印版本 / `--check` 校验两处一致 / `--installed <工作区>` 检测过期）
+- **文档**：INSTALL.md 新增「框架升级流程」章节（版本规则、升级步骤、`[BREAKING]` 标记、同步已装工作区）；README 标注当前版本；AGENTS.md 新增「框架版本纪律」
+- **验证**：`framework-version.py --print/--check` 通过；`--installed E:\TempOpenWork` 正确检出旧安装无 VERSION 为过期
+
 ## 2026-08-13 — 仓库重构：SEA 运行时包 + INSTALL.md
 
 - **结构**：`agents/`、`memory/`、`scripts/`、`templates/`、`CHANGELOG.md` 移入 `SEA/`（SelfEvolutionAgent 运行时包），`skills/` 留在顶层作为技能源

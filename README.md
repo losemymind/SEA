@@ -2,6 +2,8 @@
 
 可持续进化 Agent 的构建研究 + 可落地基础设施。
 
+**当前版本**：`0.1.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
+
 ## 这是什么
 
 把「可持续进化 Agent」设计文档（`sustainable-agent-research.md`）落成可运行的骨架：一个遵守硬规则、会跨会话积累经验、只保留可验证增益、可回滚、会遗忘的记忆与技能系统。
@@ -20,7 +22,8 @@
 | `SEA/templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
 | `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML） |
 | `SEA/CHANGELOG.md` | 进化留痕 |
-| `INSTALL.md` | 安装指南（两种方式 + 路径询问机制） |
+| `INSTALL.md` | 安装指南（两种方式 + 路径询问机制 + 升级流程） |
+| `VERSION` | 框架版本号（与 `SEA/VERSION` 一致） |
 | `sustainable-agent-research.md` | 设计文档（研究结论 + 未来计划） |
 
 ## 启用方式
@@ -48,6 +51,11 @@ python SEA/scripts/validate-agent-improvements.py
 # 版本核实健康检查（默认 90 天逾期；--stale N 自定义）
 python SEA/scripts/verify-versions.py
 python SEA/scripts/verify-versions.py --stale 30
+
+# 框架版本（打印 / 检查两处一致 / 检查工作区是否过期）
+python SEA/scripts/framework-version.py
+python SEA/scripts/framework-version.py --check
+python SEA/scripts/framework-version.py --installed E:\TempOpenWork
 ```
 
 ## 核心原则（速记）
