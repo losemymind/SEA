@@ -65,3 +65,24 @@
 6. **供应链审计**（solidify 前必查）：不读取敏感路径、不执行危险命令、不下载远程脚本、不写 secret、不污染其他技能/记忆
 
 每次创建/演进技能后跑 `python scripts/validate-skill.py` 校验。
+
+## 定义自改进（Phase 3）
+
+修改定义文件（`AGENTS.md`、agent 定义、技能规则）走 GEPA 式反思进化：
+
+1. 候选登记 `agents/_improvements/improvements.json`（status=pending）
+2. Evaluate：评测集上取基线分（对照 `agents/_improvements/baselines.json`）
+3. Improve：一次只改一个目标文件，最小 diff
+4. Validate：复测记 `score_after`
+5. Confirm：展示 diff + 分数变化 → **HITL 审批**
+6. **棘轮**：`score_after > best_score` 才保留并更新基线；否则 `git revert`（基线单调不降）
+
+跑 `python scripts/validate-agent-improvements.py` 校验注册表与棘轮一致性。
+
+## 版本自适应（Phase 4）
+
+- 版本锚定的可核实事实存 `memory/verified_facts.yaml`（schema 见 `templates/verify-facts/schema.md`）
+- 环境版本变更后 / 每 90 天：跑 `python scripts/verify-versions.py` 检查逾期与未核实
+- **先核实再断言**：`verified: false` 或 `status: deprecated` 的事实不得作为断言依据
+- 失效事实 → 标记 deprecated（含原因）→ 触发 agent-improvement 修正依赖它的定义
+- 生命周期：active(re-verify 更新 verified_on) ──失效──► deprecated

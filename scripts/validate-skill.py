@@ -4,7 +4,8 @@
 检查项:
   1. 每个技能目录（排除 _ 开头）必须含 SKILL.md，且 frontmatter 有非空 name / description
   2. frontmatter 解析：--- 包裹的 YAML
-  3. _evolutions/evolutions.json：schema 字段完整、kind/status 枚举合法、id 唯一
+  3. 技能目录内的 test-prompts.json 必须是合法 JSON 且符合 schema
+  4. _evolutions/evolutions.json：schema 字段完整、kind/status 枚举合法、id 唯一
 
 用法:
     python scripts/validate-skill.py
@@ -31,6 +32,7 @@ FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 VALID_KIND = {"FIX", "DERIVED", "CAPTURED"}
 VALID_STATUS = {"pending", "solidified", "rejected", "reverted"}
 REQUIRED_EVO = ["id", "skill", "kind", "signal", "proposal", "status", "created"]
+PROMPT_CATEGORIES = {"success", "failure", "boundary"}
 
 
 def parse_frontmatter(text: str):
@@ -41,6 +43,35 @@ def parse_frontmatter(text: str):
         return safe_load(m.group(1))
     except Exception:
         return None
+
+
+def check_test_prompts(subdir, errors):
+    """校验技能目录下的 test-prompts.json（若有）。"""
+    path = subdir / "test-prompts.json"
+    if not path.exists():
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        errors.append(f"{subdir.name}/test-prompts.json: JSON 解析失败: {e}")
+        return
+    if not isinstance(data, dict):
+        errors.append(f"{subdir.name}/test-prompts.json: 顶层应为对象")
+        return
+    if not isinstance(data.get("schema_version"), int):
+        errors.append(f"{subdir.name}/test-prompts.json: 缺少整数 schema_version")
+    if not isinstance(data.get("prompts"), list):
+        errors.append(f"{subdir.name}/test-prompts.json: 缺少 prompts 数组")
+        return
+    for i, p in enumerate(data["prompts"], 1):
+        if not isinstance(p, dict):
+            errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: 应为对象")
+            continue
+        for f in ("id", "task", "expect", "category"):
+            if not p.get(f):
+                errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: 缺少 {f}")
+        if p.get("category") not in PROMPT_CATEGORIES:
+            errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: category 非法（应为 {sorted(PROMPT_CATEGORIES)}）")
 
 
 def check_skills(errors):
@@ -64,6 +95,7 @@ def check_skills(errors):
             errors.append(f"{sub.name}: frontmatter 缺少非空 name")
         if not fm.get("description"):
             errors.append(f"{sub.name}: frontmatter 缺少非空 description")
+        check_test_prompts(sub, errors)
     return count
 
 

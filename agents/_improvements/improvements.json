@@ -1,0 +1,20 @@
+{
+  "_doc": "Agent 定义候选改进注册表 schema。每次对定义文件的改进先登记为 pending，再走评估→审批→棘轮。字段：id(im-YYYYMMDD-NNN), target(目标文件路径), kind[FIX|DERIVED|REWRITE], signal{type[user-correct|metric|failure|manual], detail}, patch(diff 描述), status[pending|approved|rejected|reverted], created, score_before(可选), score_after(可选), evidence[]",
+  "improvements": [
+    {
+      "id": "im-20260813-001",
+      "target": "AGENTS.md",
+      "kind": "FIX",
+      "signal": {
+        "type": "manual",
+        "detail": "模板初始化示例"
+      },
+      "patch": "示例补丁描述",
+      "status": "pending",
+      "created": "2026-08-13",
+      "score_before": null,
+      "score_after": null,
+      "evidence": []
+    }
+  ]
+}

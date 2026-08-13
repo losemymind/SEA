@@ -10,11 +10,12 @@
 
 | 路径 | 用途 |
 |---|---|
-| `AGENTS.md` | 常驻注入的纪律：硬规则、五步进化闭环、任务收尾协议、记忆写入守则、分级权限、技能生命周期 |
-| `memory/` | 长期记忆库（lessons / preferences / NOTES） |
-| `skills/` | 技能资产库：`task-retrospective`（收尾反思）、`skill-craft`（技能创建/演进）、`_evolutions/`（候选演进注册表） |
-| `templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema |
-| `scripts/` | 记忆校验/查重 + 技能校验脚本（Python，零额外依赖除 PyYAML） |
+| `AGENTS.md` | 常驻注入的纪律：硬规则、五步进化闭环、任务收尾协议、记忆写入守则、分级权限、技能生命周期、定义自改进（P3）、版本自适应（P4） |
+| `memory/` | 长期记忆库（lessons / preferences / verified_facts / NOTES） |
+| `skills/` | 技能资产库：`task-retrospective`（收尾反思）、`skill-craft`（技能创建/演进）、`agent-improvement`（定义自改进）、`version-verify`（版本核实）、`_evolutions/`（候选演进注册表） |
+| `agents/_improvements/` | 定义改进注册表 + 棘轮基线（P3） |
+| `templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
+| `scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML） |
 | `CHANGELOG.md` | 进化留痕 |
 | `sustainable-agent-research.md` | 设计文档（研究结论 + 未来计划） |
 
@@ -36,6 +37,13 @@ python scripts/dedup-check.py 0.5
 
 # 校验技能 frontmatter 与候选演进注册表
 python scripts/validate-skill.py
+
+# 校验定义改进注册表与棘轮基线
+python scripts/validate-agent-improvements.py
+
+# 版本核实健康检查（默认 90 天逾期；--stale N 自定义）
+python scripts/verify-versions.py
+python scripts/verify-versions.py --stale 30
 ```
 
 ## 核心原则（速记）

@@ -1,0 +1,28 @@
+# 版本可核实事实注册表 — 初始示例
+
+# 按 templates/verify-facts/schema.md 的 schema 编写。脚本 `scripts/verify-versions.py` 依据此文件做 re-verify 校验。
+
+facts:
+  - id: f-20260813-001
+    claim: UE 5.8 中 Iris 启用需 .uproject Iris 插件 + SetupIrisSupport(Target) + -UseIrisReplication=1，仅链接模块不会启用
+    applies_to: UE 5.8
+    verified: true
+    verified_on: 2026-08-13
+    source: 官方 5.8 Iris 文档
+    status: active
+
+  - id: f-20260813-002
+    claim: UE 5.8 中 Enhanced Input 与 Common UI 统一为一条输入数据通路
+    applies_to: UE 5.8
+    verified: true
+    verified_on: 2026-08-13
+    source: UE 5.8 What's New 页
+    status: active
+
+  - id: f-20260813-003
+    claim: UE 5.8 中 MegaLights 为生产就绪的动态光源方案
+    applies_to: UE 5.8
+    verified: false
+    verified_on: 2026-08-13
+    source: UE 5.8 What's New 页（待二次确认生产状态）
+    status: active
