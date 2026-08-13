@@ -1,0 +1,47 @@
+---
+name: task-retrospective
+description: 任务收尾反思与经验沉淀。每次完成任务后调用：复盘本次成败、蒸馏可泛化的策略/事实、评估质量、写入记忆库（memory/lessons.yaml / preferences.yaml）、跑校验脚本并更新 CHANGELOG。用于把一次性工作转化为可跨会话复用的经验。
+---
+
+# 任务收尾反思与经验沉淀
+
+## 何时使用
+- 完成一个可能有长期价值的任务后（排错、实现、调研、评审）
+- 发现值得跨会话保留的信息（踩坑、用户纠正、已验证事实、用户偏好）时
+
+## 流程
+
+### 1. Reflect — 复盘
+回答三个问题：
+1. 本次成功/失败在哪里？（具体到动作与结果）
+2. 可归因到哪条既有记忆/技能/规则？（相关条目是否已有）
+3. 有没有"下次再遇到同类问题会希望知道"的东西？
+
+### 2. Distill — 蒸馏
+把反思变成**可验证的断言**，遵循优先级：
+- `strategy`（策略："这类问题先做 X 再验 Y"）> `fact`（事实）> `routine`（例程）
+- 成功经验尽量带失败对比（`contrast`），形成对比信号
+- 用户纠正（`user-correct`）优先于自反思（`self-reflect`）
+
+### 3. Commit — 提交
+1. 按 `templates/lesson-schema.yaml` 写入对应 yaml：
+   - 偏好 → `memory/preferences.yaml`
+   - 经验/工程知识 → `memory/lessons.yaml`
+2. 跑 `python scripts/validate-memory.py`，有告警先修正
+3. 跑 `python scripts/dedup-check.py`，疑似重复则与既有条目合并（保留证据更强、时间更新的）
+4. 更新 `CHANGELOG.md`（条目 id、来源、验证结果）
+
+### 4. Internalize — 内化（可选）
+- 若该流程会重复出现 → 固化为技能（复制 `templates/skill-template/` 新建）
+- 若是常适用的行为约定 → 向 AGENTS.md 提出修订（需 HITL 审批）
+
+## 验收
+- 所有新条目通过 `validate-memory.py`
+- 无未合并的疑似重复
+- CHANGELOG 已更新
+- 未引入 PII / 密钥
+
+## 反例（不要这样）
+- 把原始对话轨迹整段存入记忆（应存蒸馏后的断言）
+- 跳过校验直接提交
+- 只记成功不记失败对比

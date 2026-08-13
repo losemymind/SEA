@@ -1,0 +1,44 @@
+# 记忆条目 schema（authoritative）
+# 定义 memory/preferences.yaml 与 memory/lessons.yaml 中每个条目的结构。
+# 脚本 scripts/validate-memory.py 依据本 schema 校验。
+
+# 条目顶层字段说明：
+#   id         必填，唯一。格式 m-YYYYMMDD-NNN
+#   type       必填，枚举：strategy | fact | routine | preference
+#   category   必填，枚举：preference | experience | engineering
+#   claim      必填，可验证断言（一句话）
+#   evidence   必填，验证依据：会话 id / 命令 / 结果
+#   contrast   选填，失败侧对比（成功经验更应带失败对比）
+#   confidence 必填，0.0~1.0
+#   hits       必填，非负整数，有效性计数
+#   last_used  必填，ISO 日期 yyyy-mm-dd
+#   source     必填，枚举：self-reflect | user-correct | tool-feedback
+#   deprecated 选填，布尔，默认 false；true 表示已弃用（保留以审计）
+
+required_fields:
+  - id
+  - type
+  - category
+  - claim
+  - evidence
+  - confidence
+  - hits
+  - last_used
+  - source
+
+type_enum: [strategy, fact, routine, preference]
+category_enum: [preference, experience, engineering]
+source_enum: [self-reflect, user-correct, tool-feedback]
+
+# 示例条目（供参照；正式条目见 memory/lessons.yaml 与 memory/preferences.yaml）
+example:
+  id: m-20260813-001
+  type: strategy
+  category: experience
+  claim: 处理 UE 复制漂移时，先核对 DOREPLIFETIME 与 GetLifetimeReplicatedProps 的一致性，再查 OnRep
+  evidence: [session 2026-0813, grep GetLifetimeReplicatedProps 通过]
+  contrast: 失败侧——只查 OnRep 未查注册表导致误判
+  confidence: 0.9
+  hits: 3
+  last_used: 2026-08-13
+  source: self-reflect
