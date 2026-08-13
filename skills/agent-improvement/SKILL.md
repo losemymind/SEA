@@ -13,12 +13,12 @@ description: 优化 Agent 定义文件（.md 规则/提示）。GEPA 式反思�
 ## 流程（严格按序）
 
 ### 1. 登记候选
-在 `agents/_improvements/improvements.json` 追加 `status: pending` 条目（target / kind / signal / patch 描述）。跑 `python scripts/validate-agent-improvements.py` 校验。
+在 `SEA/agents/_improvements/improvements.json` 追加 `status: pending` 条目（target / kind / signal / patch 描述）。跑 `python SEA/scripts/validate-agent-improvements.py` 校验。
 
 ### 2. Evaluate（基线）
 - 结构侧：检查目标文件结构完整性
 - 效果侧：在目标对应的 `test-prompts.json` 上跑，记 `score_before`
-- 读取 `agents/_improvements/baselines.json` 中该文件的 `best_score`；若 `score_before` 更低，以 `score_before` 为棘轮参考
+- 读取 `SEA/agents/_improvements/baselines.json` 中该文件的 `best_score`；若 `score_before` 更低，以 `score_before` 为棘轮参考
 
 ### 3. Improve（补丁）
 - **一次只改一个目标文件**

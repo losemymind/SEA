@@ -1,6 +1,8 @@
 # AGENTS.md — 可持续进化 Agent 纪律
 
-本文件是随仓库常驻注入的指令。它定义本仓库所托管 agent（及引用本仓库的 agent）如何**持续进化而不退化**。详细设计见 `sustainable-agent-research.md`。
+本文件是随仓库常驻注入的指令。它定义本仓库所托管 agent（及引用本仓库的 agent）如何**持续进化而不退化**。详细设计见 `sustainable-agent-research.md`，安装方式见 `INSTALL.md`。
+
+> **路径约定**：运行时（脚本/记忆/模板/注册表）统一放在 `SEA/` 目录下；技能库根目录可能是全局（`~/.config/opencode/skills/`）或工作区（`.opencode/skills/`），下文以 `<skills-root>` 指代。安装说明见 `INSTALL.md`。
 
 ## 硬规则（最先阅读）
 
@@ -21,15 +23,15 @@
 | **Act** | 执行任务，记录轨迹（工具调用、错误、用户纠正、环境反馈） | 会话内 |
 | **Reflect** | 复盘：成功/失败在哪里？可归因到哪条记忆/技能/规则？ | 反思文本 |
 | **Distill** | 提取可泛化的**策略**（优先）或**事实**，而非原始轨迹 | 候选条目 |
-| **Commit** | 质量评估 → 去重/冲突解决 → 写入 `memory/`，带来源与验证 | `memory/*.yaml` |
-| **Internalize** | 常用流程固化为技能（`skills/`）；行为约定固化为规则 | `skills/`, `AGENTS.md` |
+| **Commit** | 质量评估 → 去重/冲突解决 → 写入 `SEA/memory/`，带来源与验证 | `SEA/memory/*.yaml` |
+| **Internalize** | 常用流程固化为技能（`<skills-root>`）；行为约定固化为规则 | `<skills-root>`, `AGENTS.md` |
 
 ## 任务收尾协议（每次任务结束强制）
 
-1. 若任务中发现了值得跨会话保留的信息，按 `templates/lesson-schema.yaml` 写记忆条目到 `memory/`
-2. 跑 `python scripts/validate-memory.py` 校验；有告警先修正
-3. 若存在疑似重复条目，跑 `python scripts/dedup-check.py`，按提示合并
-4. 更新 `CHANGELOG.md`（改动内容、来源会话、验证结果）
+1. 若任务中发现了值得跨会话保留的信息，按 `SEA/templates/lesson-schema.yaml` 写记忆条目到 `SEA/memory/`
+2. 跑 `python SEA/scripts/validate-memory.py` 校验；有告警先修正
+3. 若存在疑似重复条目，跑 `python SEA/scripts/dedup-check.py`，按提示合并
+4. 更新 `SEA/CHANGELOG.md`（改动内容、来源会话、验证结果）
 5. 提交 git（信息含条目 id 与来源）
 
 ## 记忆写入守则
@@ -44,8 +46,8 @@
 
 | 改动 | 权限 |
 |---|---|
-| 写 `memory/` 记忆条目 | 自动执行（经脚本校验） |
-| 修改 `skills/` 技能 | HITL 审批（展示 diff 后确认） |
+| 写 `SEA/memory/` 记忆条目 | 自动执行（经脚本校验） |
+| 修改技能（`<skills-root>`） | HITL 审批（展示 diff 后确认） |
 | 修改本文件（`AGENTS.md`） | HITL 审批 + 棘轮评估 |
 
 ## 版本自适应
@@ -57,32 +59,32 @@
 
 技能影响未来行为，必须过质量门与审批：
 
-1. **候选先入 `skills/_evolutions/evolutions.json`**（status=pending，未生效）
+1. **候选先入 `<skills-root>/_evolutions/evolutions.json`**（status=pending，未生效）
 2. **评估**（独立于生成）：结构侧 + 效果侧（在技能自带的 `test-prompts.json` 上跑）
 3. **HITL 审批**：展示 diff + 分数变化（`score_before`/`score_after`）→ 人工确认
 4. **solidify**：通过才合并回 `SKILL.md`（失败类→`Troubleshooting`；用户纠正→`Examples`），状态置 solidified
 5. **棘轮**：新分数不高于 `score_before` → 移除改动，状态置 reverted；基线单调不降
 6. **供应链审计**（solidify 前必查）：不读取敏感路径、不执行危险命令、不下载远程脚本、不写 secret、不污染其他技能/记忆
 
-每次创建/演进技能后跑 `python scripts/validate-skill.py` 校验。
+每次创建/演进技能后跑 `python SEA/scripts/validate-skill.py --skills-dir <skills-root>` 校验。
 
 ## 定义自改进（Phase 3）
 
 修改定义文件（`AGENTS.md`、agent 定义、技能规则）走 GEPA 式反思进化：
 
-1. 候选登记 `agents/_improvements/improvements.json`（status=pending）
-2. Evaluate：评测集上取基线分（对照 `agents/_improvements/baselines.json`）
+1. 候选登记 `SEA/agents/_improvements/improvements.json`（status=pending）
+2. Evaluate：评测集上取基线分（对照 `SEA/agents/_improvements/baselines.json`）
 3. Improve：一次只改一个目标文件，最小 diff
 4. Validate：复测记 `score_after`
 5. Confirm：展示 diff + 分数变化 → **HITL 审批**
 6. **棘轮**：`score_after > best_score` 才保留并更新基线；否则 `git revert`（基线单调不降）
 
-跑 `python scripts/validate-agent-improvements.py` 校验注册表与棘轮一致性。
+跑 `python SEA/scripts/validate-agent-improvements.py` 校验注册表与棘轮一致性。
 
 ## 版本自适应（Phase 4）
 
-- 版本锚定的可核实事实存 `memory/verified_facts.yaml`（schema 见 `templates/verify-facts/schema.md`）
-- 环境版本变更后 / 每 90 天：跑 `python scripts/verify-versions.py` 检查逾期与未核实
+- 版本锚定的可核实事实存 `SEA/memory/verified_facts.yaml`（schema 见 `SEA/templates/verify-facts/schema.md`）
+- 环境版本变更后 / 每 90 天：跑 `python SEA/scripts/verify-versions.py` 检查逾期与未核实
 - **先核实再断言**：`verified: false` 或 `status: deprecated` 的事实不得作为断言依据
 - 失效事实 → 标记 deprecated（含原因）→ 触发 agent-improvement 修正依赖它的定义
 - 生命周期：active(re-verify 更新 verified_on) ──失效──► deprecated

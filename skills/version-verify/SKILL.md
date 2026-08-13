@@ -1,6 +1,6 @@
 ---
 name: version-verify
-description: 版本与环境自适应。定期核对 memory/verified_facts.yaml 中的可核实事实：检查条目 schema 是否完整、标记过期（未在 N 天内 re-verify）与废弃（status=deprecated）、识别 verified=false 却仍被引用的风险。用于让 agent 的领域知识跟随环境版本漂移而不退化。
+description: 版本与环境自适应。定期核对 SEA/memory/verified_facts.yaml 中的可核实事实：检查条目 schema 是否完整、标记过期（未在 N 天内 re-verify）与废弃（status=deprecated）、识别 verified=false 却仍被引用的风险。用于让 agent 的领域知识跟随环境版本漂移而不退化。
 ---
 
 # 版本核实与自适应
@@ -13,7 +13,7 @@ description: 版本与环境自适应。定期核对 memory/verified_facts.yaml 
 ## 流程
 
 ### 1. 检查注册表健康
-跑 `python scripts/verify-versions.py`：
+跑 `python SEA/scripts/verify-versions.py`：
 - schema 完整（缺 source / verified_on 视为风险）
 - 列出去逾期（`--stale N`，默认 90 天未 re-verify）
 
@@ -27,7 +27,7 @@ description: 版本与环境自适应。定期核对 memory/verified_facts.yaml 
 ### 3. 废弃检测
 `status: deprecated` 的条目：
 - 不再作为断言依据
-- 触发修正流程：把变更写入 `agents/_improvements/improvements.json`（走 agent-improvement），修正依赖该事实的定义/规则
+- 触发修正流程：把变更写入 `SEA/agents/_improvements/improvements.json`（走 agent-improvement），修正依赖该事实的定义/规则
 
 ### 4. 留痕
 - 更新 `verified_on` / `status` 后跑 `verify-versions.py` 确认通过

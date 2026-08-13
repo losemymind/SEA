@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""validate-skill.py — 校验 skills/ 下技能资产的 frontmatter 与 _evolutions/evolutions.json。
+"""validate-skill.py — 校验技能库的 frontmatter 与 _evolutions/evolutions.json。
 
 检查项:
   1. 每个技能目录（排除 _ 开头）必须含 SKILL.md，且 frontmatter 有非空 name / description
@@ -8,11 +8,13 @@
   4. _evolutions/evolutions.json：schema 字段完整、kind/status 枚举合法、id 唯一
 
 用法:
-    python scripts/validate-skill.py
+    python SEA/scripts/validate-skill.py [--skills-dir <技能库根目录>]
 
+技能库根目录：显式传入，或自动探测 .opencode/skills → 仓库根 skills/（默认）。
 退出码: 0 全部通过; 1 存在错误。零第三方依赖（仅标准库 + PyYAML）。
 """
 
+import argparse
 import json
 import re
 import sys
@@ -25,7 +27,6 @@ except ImportError:  # pragma: no cover
     sys.exit(2)
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS_DIR = ROOT / "skills"
 
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 
@@ -33,6 +34,19 @@ VALID_KIND = {"FIX", "DERIVED", "CAPTURED"}
 VALID_STATUS = {"pending", "solidified", "rejected", "reverted"}
 REQUIRED_EVO = ["id", "skill", "kind", "signal", "proposal", "status", "created"]
 PROMPT_CATEGORIES = {"success", "failure", "boundary"}
+
+
+def resolve_skills_dir(args_skills_dir):
+    if args_skills_dir:
+        return Path(args_skills_dir)
+    candidates = [
+        Path.cwd() / ".opencode" / "skills",
+        ROOT.parent / "skills",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return candidates[-1]
 
 
 def parse_frontmatter(text: str):
@@ -74,9 +88,12 @@ def check_test_prompts(subdir, errors):
             errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: category 非法（应为 {sorted(PROMPT_CATEGORIES)}）")
 
 
-def check_skills(errors):
+def check_skills(skills_dir, errors):
+    if not skills_dir.exists():
+        errors.append(f"技能库目录不存在: {skills_dir}")
+        return 0
     count = 0
-    for sub in sorted(SKILLS_DIR.iterdir()):
+    for sub in sorted(skills_dir.iterdir()):
         if not sub.is_dir() or sub.name.startswith("_"):
             continue
         count += 1
@@ -99,9 +116,8 @@ def check_skills(errors):
     return count
 
 
-def check_evolutions(errors):
-    evo_dir = SKILLS_DIR / "_evolutions"
-    path = evo_dir / "evolutions.json"
+def check_evolutions(skills_dir, errors):
+    path = skills_dir / "_evolutions" / "evolutions.json"
     if not path.exists():
         errors.append("_evolutions/evolutions.json 缺失")
         return
@@ -128,16 +144,22 @@ def check_evolutions(errors):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--skills-dir", type=str, default=None,
+                    help="技能库根目录（默认自动探测 .opencode/skills → 仓库根 skills/）")
+    args = ap.parse_args()
+
+    skills_dir = resolve_skills_dir(args.skills_dir)
     errors = []
-    skill_count = check_skills(errors)
-    check_evolutions(errors)
+    skill_count = check_skills(skills_dir, errors)
+    check_evolutions(skills_dir, errors)
 
     if errors:
         for e in errors:
             print(f"[ERROR] {e}", file=sys.stderr)
         print(f"\n{len(errors)} 个问题，请修正后重跑。", file=sys.stderr)
         return 1
-    print(f"OK：{skill_count} 个技能 + evolutions.json 校验通过。")
+    print(f"OK：{skill_count} 个技能（{skills_dir}）+ evolutions.json 校验通过。")
     return 0
 
 

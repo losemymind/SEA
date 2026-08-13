@@ -1,6 +1,6 @@
 ---
 name: skill-craft
-description: 创建或演进一个技能资产。把可复用工作流固化为 SKILL.md（含 frontmatter、流程、验收、反例），或把 _evolutions/evolutions.json 中的候选经评估+审批后 solidify 回对应 SKILL.md。用于扩充 skills/ 技能库。
+description: 创建或演进一个技能资产。把可复用工作流固化为 SKILL.md（含 frontmatter、流程、验收、反例），或把技能库根目录下 _evolutions/evolutions.json 中的候选经评估+审批后 solidify 回对应 SKILL.md。用于扩充技能库。
 ---
 
 # 技能创建与演进
@@ -12,18 +12,18 @@ description: 创建或演进一个技能资产。把可复用工作流固化为 
 
 ## 创建新技能（CAPTURED）
 
-1. 复制 `templates/skill-template/SKILL.md` 到 `skills/<kebab-name>/`
+1. 复制 `SEA/templates/skill-template/SKILL.md` 到技能库 `skills/<kebab-name>/`（技能库根目录 = 安装位置，全局为 `~/.config/opencode/skills/`，工作区为 `.opencode/skills/`）
 2. 填 frontmatter：
    - `name`：kebab-case
    - `description`：写清「何时触发 + 做什么 + 产出什么」，能让模型按描述自动匹配
 3. 写正文：何时使用 / 流程 / 输入输出 / 约束 / 反例
-4. 需要评测集的加 `test-prompts.json`（见 `templates/test-prompts.json`）
-5. 跑 `python scripts/validate-skill.py` 校验
+4. 需要评测集的加 `test-prompts.json`（见 `SEA/templates/test-prompts.json`）
+5. 跑 `python SEA/scripts/validate-skill.py --skills-dir <技能库根目录>` 校验
 
 ## 演进既有技能
 
 ### 候选先入 `_evolutions/evolutions.json`
-按 schema 新增条目（id / skill / kind / signal / proposal / status=pending / created）。
+在技能库根目录的 `_evolutions/evolutions.json` 追加条目（id / skill / kind / signal / proposal / status=pending / created）。
 
 ### 评估（独立于生成）
 - 结构侧：SKILL.md 结构完整、描述可匹配

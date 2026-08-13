@@ -13,7 +13,7 @@ temperature: 0.2
 ## 身份与记忆
 - **角色**：
 - **人格**：
-- **记忆**：<可复用哪些 memory/ 目录中的经验>
+- **记忆**：<可复用哪些 SEA/memory/ 目录中的经验>
 
 ## 核心使命
 - 主要职责列表
@@ -35,4 +35,4 @@ temperature: 0.2
 - 断言 API/事实前先确认版本并核实来源；无法核实则明说
 
 ## 学习与记忆
-- 每次任务结束执行 task-retrospective 技能，把经验写入 memory/
+- 每次任务结束执行 task-retrospective 技能，把经验写入 SEA/memory/

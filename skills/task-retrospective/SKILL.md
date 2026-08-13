@@ -1,6 +1,6 @@
 ---
 name: task-retrospective
-description: 任务收尾反思与经验沉淀。每次完成任务后调用：复盘本次成败、蒸馏可泛化的策略/事实、评估质量、写入记忆库（memory/lessons.yaml / preferences.yaml）、跑校验脚本并更新 CHANGELOG。用于把一次性工作转化为可跨会话复用的经验。
+description: 任务收尾反思与经验沉淀。每次完成任务后调用：复盘本次成败、蒸馏可泛化的策略/事实、评估质量、写入记忆库（SEA/memory/lessons.yaml / preferences.yaml）、跑校验脚本并更新 CHANGELOG。用于把一次性工作转化为可跨会话复用的经验。
 ---
 
 # 任务收尾反思与经验沉淀
@@ -24,15 +24,15 @@ description: 任务收尾反思与经验沉淀。每次完成任务后调用：�
 - 用户纠正（`user-correct`）优先于自反思（`self-reflect`）
 
 ### 3. Commit — 提交
-1. 按 `templates/lesson-schema.yaml` 写入对应 yaml：
-   - 偏好 → `memory/preferences.yaml`
-   - 经验/工程知识 → `memory/lessons.yaml`
-2. 跑 `python scripts/validate-memory.py`，有告警先修正
-3. 跑 `python scripts/dedup-check.py`，疑似重复则与既有条目合并（保留证据更强、时间更新的）
-4. 更新 `CHANGELOG.md`（条目 id、来源、验证结果）
+1. 按 `SEA/templates/lesson-schema.yaml` 写入对应 yaml：
+   - 偏好 → `SEA/memory/preferences.yaml`
+   - 经验/工程知识 → `SEA/memory/lessons.yaml`
+2. 跑 `python SEA/scripts/validate-memory.py`，有告警先修正
+3. 跑 `python SEA/scripts/dedup-check.py`，疑似重复则与既有条目合并（保留证据更强、时间更新的）
+4. 更新 `SEA/CHANGELOG.md`（条目 id、来源、验证结果）
 
 ### 4. Internalize — 内化（可选）
-- 若该流程会重复出现 → 固化为技能（复制 `templates/skill-template/` 新建）
+- 若该流程会重复出现 → 固化为技能（复制 `SEA/templates/skill-template/` 新建）
 - 若是常适用的行为约定 → 向 AGENTS.md 提出修订（需 HITL 审批）
 
 ## 验收

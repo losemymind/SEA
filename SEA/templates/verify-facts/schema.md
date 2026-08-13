@@ -3,7 +3,7 @@
 目标：领域事实随外部版本漂移（如 UE 5.0 → 5.8 API 变化）。本注册表记录"版本锚定"的可核实事实，供定期 re-verify 与废弃检测。
 
 ## 文件位置
-`memory/verified_facts.yaml` — 顶层 `facts:` 数组。
+`SEA/memory/verified_facts.yaml` — 顶层 `facts:` 数组。
 
 ## 条目字段
 

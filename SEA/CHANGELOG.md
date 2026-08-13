@@ -2,6 +2,13 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 2026-08-13 — 仓库重构：SEA 运行时包 + INSTALL.md
+
+- **结构**：`agents/`、`memory/`、`scripts/`、`templates/`、`CHANGELOG.md` 移入 `SEA/`（SelfEvolutionAgent 运行时包），`skills/` 留在顶层作为技能源
+- **路径**：全部技能正文、AGENTS.md、文档内的引用改为 `SEA/` 前缀（相对工作区根）；`validate-skill.py` 新增 `--skills-dir` 参数（自动探测 `.opencode/skills` → 仓库根 `skills/`）
+- **INSTALL.md**：新增两种安装方式（技能装全局 vs 工作区）+ 路径询问机制说明
+- **验证**：5 个校验脚本全部通过（memory/dedup/skill/improvements/versions），`validate-skill.py` 带 `--skills-dir` 与默认探测两种调用均通过
+
 ## 2026-08-13 — 首次真实收尾闭环（从 TempOpenWork 回流）
 
 - 复制测试产生的真实经验沉淀（m-20260813-004 YAML 注释坑、m-20260813-005 skills 双份拷贝同步）

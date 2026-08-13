@@ -26,7 +26,7 @@
 |---|---|
 | 目录名 | kebab-case（如 `task-retrospective`） |
 | 入口 | `SKILL.md`（frontmatter 含 `name` + `description`） |
-| 评测集 | 可选 `test-prompts.json`（见 `templates/test-prompts.json`） |
+| 评测集 | 可选 `test-prompts.json`（见 `SEA/templates/test-prompts.json`） |
 | 辅助文件 | 脚本/模板随目录携带，SKILL.md 中说明 |
 | 禁用前缀 | `_` 开头目录（如 `_evolutions/`）是元数据，不是技能 |
 
@@ -34,13 +34,13 @@
 
 1. `description` 写得能按描述自动匹配（何时触发、做什么、产出什么）
 2. 步骤可执行、有验收、有反例
-3. 通过 `scripts/validate-skill.py`（frontmatter 必填 + evolutions.json schema）
+3. 通过 `python SEA/scripts/validate-skill.py --skills-dir <技能库根目录>`（frontmatter 必填 + evolutions.json schema）
 4. 供应链审计（第 5.4 节）：无敏感路径读取、无危险命令、无远程脚本下载、无 secret 写入、不污染其他技能/记忆
 5. HITL 审批后才 solidify
 
 ## 验证与审计
 
 ```powershell
-# 校验所有技能 frontmatter 与 evolutions.json
-python scripts/validate-skill.py
+# 校验技能库 frontmatter 与 evolutions.json（--skills-dir 指向技能库根目录）
+python SEA/scripts/validate-skill.py --skills-dir .
 ```

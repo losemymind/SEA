@@ -16,8 +16,8 @@
 ## 输入
 
 - **目标文件**：Agent 定义文件（如 `.opencode/agent/*.md`）或本仓库 `AGENTS.md`
-- **评测集**：领域 `test-prompts.json`（见 `templates/test-prompts.json`）
-- **当前基线**：目标文件当前评测分（存 `agents/_improvements/`，见下）
+- **评测集**：领域 `test-prompts.json`（见 `SEA/templates/test-prompts.json`）
+- **当前基线**：目标文件当前评测分（存 `SEA/agents/_improvements/`，见下）
 
 ## 流程步骤
 
@@ -29,13 +29,13 @@
 
 ## 候选改进注册表
 
-候选改进记录在 `agents/_improvements/improvements.json`（schema 见该文件内的 `_doc`）。每次改进必须先登记为 `pending`，再走评估/审批/棘轮。
+候选改进记录在 `SEA/agents/_improvements/improvements.json`（schema 见该文件内的 `_doc`）。每次改进必须先登记为 `pending`，再走评估/审批/棘轮。
 
 ## 分级权限
 
 | 改动 | 权限 |
 |---|---|
-| 写 `memory/` 记忆 | 自动执行（脚本校验） |
+| 写 `SEA/memory/` 记忆 | 自动执行（脚本校验） |
 | 修改技能/定义文件 | **HITL 审批 + 棘轮**（展示 diff + 分数对比） |
 
 ## 供应链审计（修改定义前必查）

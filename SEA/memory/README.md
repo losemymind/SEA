@@ -1,4 +1,4 @@
-# memory/ — 跨会话记忆库
+# memory/ — 跨会话记忆库（SEA 运行时内）
 
 本目录是 agent 的长期记忆。**写得进、查得到、可回滚、会遗忘**——这是记忆库与普通笔记的区别。
 
@@ -19,7 +19,7 @@
 
 ## 条目 schema
 
-字段定义见 `templates/lesson-schema.yaml`。核心：`id` / `type` / `category` / `claim` / `evidence` / `source`。
+字段定义见 `SEA/templates/lesson-schema.yaml`。核心：`id` / `type` / `category` / `claim` / `evidence` / `source`。
 
 ## 生命周期
 
@@ -29,16 +29,16 @@
 
 - **召回**：任务开始时检索相关条目，选择性注入上下文（不做全量塞入）
 - **质量评估**：缺 `evidence` / `claim` 无法验证 → 拒绝保留
-- **去重**：`python scripts/dedup-check.py` 提示近重复，人工合并
+- **去重**：`python SEA/scripts/dedup-check.py` 提示近重复，人工合并
 - **冲突**：时间新 + 证据强 胜出；旧条目标记 `deprecated: true`
 - **有效性**：任务结束后对召回的条目评效；无效则降 `confidence` / 标记待遗忘
 - **遗忘**：`confidence` 过低或长期未命中（`hits` 停滞 + 时间衰减）→ 从活跃区移除（归档，不硬删）
 
 ## 使用
 
-- **写入**：按 schema 追加条目 → `python scripts/validate-memory.py` → 更新 CHANGELOG → git commit
-- **校验**：`python scripts/validate-memory.py`（必填字段/类型/id 唯一）
-- **查重**：`python scripts/dedup-check.py`（标题相似度 + 合并建议）
+- **写入**：按 schema 追加条目 → `python SEA/scripts/validate-memory.py` → 更新 CHANGELOG → git commit
+- **校验**：`python SEA/scripts/validate-memory.py`（必填字段/类型/id 唯一）
+- **查重**：`python SEA/scripts/dedup-check.py`（标题相似度 + 合并建议）
 
 ## 注意事项
 
