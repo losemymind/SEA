@@ -11,13 +11,18 @@
   2. 拓扑评测（--mode topology, §10.1）: 对 SEA/agents/topology.json 中的每个
      agent 拓扑候选打分，分量 = 结构完整性(0.4) + agent 定义覆盖(0.3) +
      调用边一致性(0.3)。
+  3. LLM-as-Judge（--mode judge, §8.2）: 对单个技能的 test-prompts 调用外部
+     LLM 判官打分（Agent-as-a-Judge 思路，缓解生成器自评偏差）。判官端点经
+     环境变量配置：SEA_JUDGE_URL（OpenAI 兼容 base）/ SEA_JUDGE_API_KEY /
+     SEA_JUDGE_MODEL；未配置时回退确定性打分并提示。
 
 用途：在技能/拓扑创建或演进前后各跑一次，得到 score_before / score_after，
-供 P2/P3 生命周期与棘轮使用。分数是确定性的，不依赖 LLM。
+供 P2/P3 生命周期与棘轮使用。
 
 用法:
     python SEA/scripts/evaluate-skill.py [--skills-dir <技能库根目录>] [--json]
     python SEA/scripts/evaluate-skill.py --mode topology [--json]
+    python SEA/scripts/evaluate-skill.py --mode judge --skill <技能名> [--json]
 
 输出:
     无 --json: 逐技能/拓扑打印每个用例得分与总分
@@ -214,17 +219,105 @@ def run_topology_mode(args, templates_dir):
     return 0
 
 
+def run_judge_mode(args, skills_dir):
+    """LLM-as-Judge（§8.2）：对指定技能的 test-prompts 调外部 LLM 判官打分。
+
+    判官配置（环境变量）：
+      SEA_JUDGE_URL       OpenAI 兼容端点（如 https://api.openai.com/v1）
+      SEA_JUDGE_API_KEY   API 密钥
+      SEA_JUDGE_MODEL     模型名（默认 gpt-4o-mini）
+    未配置 → 回退确定性打分并提示。
+    """
+    import os
+    import urllib.request
+
+    skill = args.skill
+    if not skill:
+        print("[ERROR] --mode judge 需要 --skill <技能名>", file=sys.stderr)
+        return 1
+    skill_dir = skills_dir / skill
+    md = skill_dir / "SKILL.md"
+    tp = skill_dir / "test-prompts.json"
+    if not md.exists() or not tp.exists():
+        print(f"[ERROR] 技能缺少 SKILL.md 或 test-prompts.json: {skill}",
+              file=sys.stderr)
+        return 1
+
+    skill_text = md.read_text(encoding="utf-8")
+    data = json.loads(tp.read_text(encoding="utf-8"))
+    prompts = data.get("prompts", [])
+
+    url = os.environ.get("SEA_JUDGE_URL")
+    api_key = os.environ.get("SEA_JUDGE_API_KEY")
+    model = os.environ.get("SEA_JUDGE_MODEL", "gpt-4o-mini")
+    if not url or not api_key:
+        # 回退确定性打分
+        name, _, scores = check_skill(skill_dir)
+        total = round(sum(scores) / len(scores), 3) if scores else 0.0
+        print(f"[WARN] 未配置 SEA_JUDGE_URL/SEA_JUDGE_API_KEY，回退确定性打分 "
+              f"(score={total})", file=sys.stderr)
+        print(f"{name}: {total}  (fallback heuristic)")
+        return 0
+
+    results = []
+    for i, p in enumerate(prompts, 1):
+        judge_prompt = (
+            "你是技能评估判官。判断技能是否满足用例的预期。\n"
+            f"== 技能 SKILL.md ==\n{skill_text[:3000]}\n\n"
+            f"== 用例 #{i}（{p.get('category')}） ==\n"
+            f"任务: {p.get('task')}\n预期: {p.get('expect')}\n\n"
+            "请仅输出 0.0~1.0 的一个分数（数字），表示满足程度。"
+        )
+        payload = json.dumps({
+            "model": model,
+            "messages": [{"role": "user", "content": judge_prompt}],
+            "temperature": 0,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            f"{url.rstrip('/')}/chat/completions",
+            data=payload,
+            headers={"Content-Type": "application/json",
+                     "Authorization": f"Bearer {api_key}"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+            raw = body["choices"][0]["message"]["content"].strip()
+            score = float(raw.split("\n")[0].split()[0])
+            score = max(0.0, min(1.0, score))
+        except Exception as e:
+            print(f"[ERROR] 判官调用失败 用例#{i}: {e}", file=sys.stderr)
+            score = 0.0
+        results.append(round(score, 3))
+
+    total = round(sum(results) / len(results), 3) if results else 0.0
+    if args.json:
+        print(json.dumps({"schema_version": 1, "mode": "judge",
+                          "skill": skill, "judge_model": model,
+                          "score": total, "per_prompt": results},
+                         ensure_ascii=False, indent=2))
+    else:
+        per = " ".join(f"p{i}={s:.2f}" for i, s in enumerate(results, 1))
+        print(f"{skill}: {total}  (judge={model}: {per})")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--skills-dir", type=str, default=None,
                     help="技能库根目录（默认自动探测 .opencode/skills → 仓库根 skills/）")
     ap.add_argument("--json", action="store_true", help="输出 JSON")
-    ap.add_argument("--mode", choices=["skill", "topology"], default="skill",
-                    help="评测对象：技能（默认）或 agent 拓扑（§10.1）")
+    ap.add_argument("--mode", choices=["skill", "topology", "judge"], default="skill",
+                    help="评测对象：技能（默认）、agent 拓扑（§10.1）或 LLM-as-Judge（§8.2）")
+    ap.add_argument("--skill", type=str, default=None,
+                    help="--mode judge 时指定技能名")
     args = ap.parse_args()
 
     if args.mode == "topology":
         return run_topology_mode(args, ROOT / "templates")
+    if args.mode == "judge":
+        skills_dir = resolve_skills_dir(args.skills_dir)
+        return run_judge_mode(args, skills_dir)
 
     skills_dir = resolve_skills_dir(args.skills_dir)
     if not skills_dir.exists():

@@ -46,6 +46,9 @@
 - `python SEA/scripts/sync-workspace.py` — 工作区经验回流/下发同步（§10.4）
 - `python SEA/scripts/validate-topology.py` — 拓扑注册表校验（§10.1）
 - `python SEA/scripts/search-topology.py` — 多智能体拓扑自动搜索（§10.1）
+- `python SEA/scripts/tool-fix-candidates.py` — 工具修复候选聚合（§10.3）
+- `python SEA/scripts/workflow-craft.py` — 多智能体工作流实例化（§5.5）
+- `python SEA/scripts/hub-sync.py` — 远程经验 Hub 同步（§10.4）
 
 ## 记忆写入守则
 

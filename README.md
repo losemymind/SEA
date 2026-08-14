@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.2.1`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.2.2`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -77,6 +77,19 @@ python SEA/scripts/validate-topology.py --agents-dir .opencode/agents
 # 多智能体拓扑自动搜索（生成候选→评估→棘轮保留→变异）
 python SEA/scripts/search-topology.py --budget 10 --agents-dir .opencode/agents
 python SEA/scripts/search-topology.py --dry-run --agents-dir .opencode/agents
+
+# 工具修复候选（信号聚合 → 修复候选，§10.3）
+python SEA/scripts/tool-fix-candidates.py
+python SEA/scripts/tool-fix-candidates.py --promote <工具名>
+
+# 多智能体工作流实例化（从任务描述生成工作流图 + 子 Agent，§5.5）
+python SEA/scripts/workflow-craft.py --task "调研+实现+验证" --steps 读取,实现,验证
+
+# LLM-as-Judge 评测（§8.2，需 SEA_JUDGE_URL/API_KEY/MODEL 环境变量）
+python SEA/scripts/evaluate-skill.py --mode judge --skill tool-craft
+
+# 远程经验 Hub 同步（§10.4，用 git 远程作为共享存储）
+python SEA/scripts/hub-sync.py --remote origin --push --dry-run
 
 # 校验定义改进注册表与棘轮基线
 python SEA/scripts/validate-agent-improvements.py

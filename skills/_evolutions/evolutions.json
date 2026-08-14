@@ -13,6 +13,18 @@
       "solidified_at": "2026-08-14",
       "score_before": null,
       "score_after": 0.75
+    },
+    {
+      "id": "evo-tool-craft",
+      "skill": "tool-craft",
+      "kind": "CAPTURED",
+      "signal": "research §10.3 后半：已有信号采集（collect-tool-signals），缺修复闭环",
+      "proposal": "新增 tool-craft 技能：从失败信号聚合出修复候选，走 HITL 审批，管理工具资产生命周期（tools.json 注册表）",
+      "status": "solidified",
+      "created": "2026-08-14",
+      "score_before": null,
+      "score_after": 0.47,
+      "solidified_at": "2026-08-14"
     }
   ]
 }

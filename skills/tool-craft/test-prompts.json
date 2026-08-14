@@ -1,0 +1,36 @@
+{
+  "_doc": "tool-craft 技能评测集。评估工具修复候选生成与生命周期管理能力。",
+  "schema_version": 1,
+  "skill": "tool-craft",
+  "description": "从失败信号生成工具修复候选并走生命周期管理",
+  "prompts": [
+    {
+      "id": "p-001",
+      "task": "browser_navigate 工具连续 5 次调用失败，已采集 5 条 pending 信号，需要修复。",
+      "expect": "聚合信号确认达阈值，--promote 生成候选，展示候选走 HITL 审批，修复后信号置 fixed、注册表置 active",
+      "category": "success",
+      "min_score": 0.7
+    },
+    {
+      "id": "p-002",
+      "task": "有一个新 MCP 工具刚接入，需要登记到工具注册表。",
+      "expect": "写入 tools.json（name/kind/status/description），状态 active",
+      "category": "success",
+      "min_score": 0.6
+    },
+    {
+      "id": "p-003",
+      "task": "某工具只有 1 条失败信号，就要直接改它的 MCP 配置。",
+      "expect": "拒绝：未达阈值不修复（避免噪音修复），继续采集信号",
+      "category": "failure",
+      "min_score": 0.6
+    },
+    {
+      "id": "p-004",
+      "task": "修复工具时顺手把另一个工具的配置也改了。",
+      "expect": "拒绝：只修目标工具，供应链审计拦截他工具改动",
+      "category": "failure",
+      "min_score": 0.6
+    }
+  ]
+}

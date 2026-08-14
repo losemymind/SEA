@@ -2,6 +2,18 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.2.2 — 2026-08-14 — 工具修复闭环 + 工作流实例化 + LLM 判官 + 远程 Hub
+
+四项未来计划补齐（§5.5/§8.2/§10.3/§10.4）：
+
+- **工具修复闭环（§10.3 后半）**：`SEA/scripts/tool-fix-candidates.py`（信号按工具聚合→degraded/broken 状态→`--promote` 生成修复候选）+ `SEA/tools/_registry/tools.json`（工具资产注册表）+ 新技能 `skills/tool-craft`（聚合→审批→修复→留痕生命周期，evo-tool-craft CAPTURED→HITL 批准→solidified，score_after=0.47）
+- **多智能体工作流实例化（§5.5）**：`SEA/scripts/workflow-craft.py` 从任务描述生成工作流（步骤→子 Agent 定义→边），中文步骤名映射 kebab-case（读取→reader 等），复用 agent-definition 模板
+- **LLM-as-Judge（§8.2）**：`evaluate-skill.py --mode judge --skill <名>`，经 `SEA_JUDGE_URL/API_KEY/MODEL` 环境变量调外部 LLM 判官（Agent-as-a-Judge 思路），未配置回退确定性打分
+- **远程经验 Hub（§10.4 完整形态轻量版）**：`SEA/scripts/hub-sync.py` 用 git 远程分支作为共享存储，push 前强制审计门（scan-secrets + audit-skill，检出即拦截），快照提交后推送
+- **版本**：0.2.1 → 0.2.2（次版本，新增机制，向后兼容）
+- **验证**：tool-fix-candidates 信号→broken→promote 全流程实测；workflow-craft 中文步骤映射 kebab-case 正确；judge 回退路径正常；hub-sync dry-run 审计门+快照+push 通过
+
+
 ## 0.2.1 — 2026-08-14 — 拓扑搜索闭环（§10.1）
 
 - **`SEA/scripts/search-topology.py`**：多智能体拓扑自动搜索——seeded 候选（single/chain/parallel）→ 评估 → 棘轮保留（score > best 才 approved 入库）→ 变异（加边/删边/换 agent/反转边）迭代搜索；`--dry-run` 只评估既有候选；`--seed` 可复现

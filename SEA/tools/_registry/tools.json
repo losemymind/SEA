@@ -1,0 +1,4 @@
+{
+  "_doc": "工具资产注册表（§10.3 工具层进化）。登记已知 MCP/自定义工具及其健康状态。修复候选由 tool-fix-candidates.py 从 tool-signals.json 聚合生成。字段：name(工具名), kind[mcp|custom|builtin], status[active|degraded|broken|deprecated], description, first_seen, updated, signals(pending 计数)",
+  "tools": []
+}

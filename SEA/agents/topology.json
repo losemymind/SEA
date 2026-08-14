@@ -5,7 +5,9 @@
       "id": "tp-20260814-001",
       "name": "单核实员拓扑",
       "description": "基线拓扑：单个 ue-api-verifier 子 Agent 独立完成 UE 事实核实（§10.1 演示候选）",
-      "agents": ["ue-api-verifier"],
+      "agents": [
+        "ue-api-verifier"
+      ],
       "edges": [],
       "status": "pending",
       "score": null,
