@@ -45,7 +45,6 @@ except ImportError:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parent.parent
 IMPROVEMENTS = ROOT / "agents" / "_improvements" / "improvements.json"
-EVOLUTIONS_SKILL = ROOT.parent / "skills" / "_evolutions" / "evolutions.json"
 DEFAULT_THRESHOLD = 0.7
 DEFAULT_BUDGET_AUTO = 20   # 自动评估推荐 token 预算（用例数）
 DEFAULT_BUDGET_ACTIVE = 0  # 主动评估不设上限
@@ -74,9 +73,9 @@ def resolve_skills_dir(arg):
     return candidates[-1]
 
 
-def pending_skill_candidates():
-    """收集有 pending 候选的技能演进（evolutions.json）。"""
-    data = load_json(EVOLUTIONS_SKILL)
+def pending_skill_candidates(skills_dir):
+    """收集有 pending 候选的技能演进（evolutions.json，在技能库根目录的 _evolutions 下）。"""
+    data = load_json(skills_dir / "_evolutions" / "evolutions.json")
     cands = []
     for e in data.get("evolutions", []) or []:
         if e.get("status") == "pending" and e.get("skill"):
@@ -234,7 +233,7 @@ def main():
         return 0
 
     # ---- 自动评估（变更门）----
-    skill_cands = pending_skill_candidates()
+    skill_cands = pending_skill_candidates(skills_dir)
     defn_cands = pending_definition_candidates()
     budget = args.budget if args.budget is not None else DEFAULT_BUDGET_AUTO
 

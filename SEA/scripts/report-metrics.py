@@ -115,8 +115,8 @@ def improvement_metrics():
     return {"total": len(items), "by_status": status}
 
 
-def evolution_metrics():
-    data = load_yaml(ROOT.parent / "skills" / "_evolutions" / "evolutions.json")
+def evolution_metrics(skills_dir: Path):
+    data = load_yaml(skills_dir / "_evolutions" / "evolutions.json")
     items = data.get("evolutions", []) if isinstance(data, dict) else []
     status = {}
     for it in items:
@@ -136,7 +136,7 @@ def main():
     mem = memory_metrics()
     sk = skill_metrics(skills_dir)
     im = improvement_metrics()
-    evo = evolution_metrics()
+    evo = evolution_metrics(skills_dir)
 
     print("=== SEA 进化指标报告 ===")
     print(f"记忆库: 总 {mem['total']}（deprecated {mem['deprecated']}）")

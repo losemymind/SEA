@@ -2,6 +2,15 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.3.5 — 2026-08-14 — 修复 evolutions 注册表路径（跟随解析后的技能库根目录）
+
+承接 0.3.4 发现的关联问题：`ratchet-gate.py`/`report-metrics.py` 读取技能演进注册表时固定指向 `ROOT.parent / "skills" / "_evolutions"`，在工作区（方式二）下该路径不存在。
+
+- **修复**：`pending_skill_candidates(skills_dir)` 与 `evolution_metrics(skills_dir)` 改为从**解析后的技能库根目录**读 `_evolutions/evolutions.json`，与 `validate-skill.py` 一致
+- **验证**：工作区 cwd 下 report-metrics 读到工作区自己的演进注册表（1 候选，非仓库的 5——证明读的是工作区数据）；ratchet-gate 正常
+- **版本**：0.3.4 → 0.3.5（补丁，行为修正）
+
+
 ## 0.3.4 — 2026-08-14 — 修复 ratchet-gate/report-metrics 的 --skills-dir 自动探测
 
 用户指出的上游瑕疵：`ratchet-gate.py`/`report-metrics.py` 的 `--skills-dir` 帮助文本声明"自动探测"，但只 fallback 到 `ROOT.parent / "skills"`（框架仓库位置），未实现 `resolve_skills_dir`。在已安装工作区（方式二，技能在 `.opencode/skills`）下默认指向不存在的 `E:\TempOpenWork\skills`。
