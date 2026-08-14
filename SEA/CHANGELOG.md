@@ -2,6 +2,13 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 2026-08-14 — 新技能：agent-craft（子 Agent 生成）
+
+- **技能**：`skills/agent-craft/SKILL.md`（CAPTURED，来源于 research §10.1/§5.5）— 从任务描述/历史经验生成子 Agent 定义到 `.opencode/agents/` 或全局 agents 目录，流程：登记 pending → 生成 → 结构/效果评估 → HITL 审批 → 棘轮保留/回滚，含供应链审计与最小权限
+- **评测集**：`skills/agent-craft/test-prompts.json`（4 用例：success×2 生成/拆解、failure×2 过度拆解/高危权限）
+- **注册表**：`_evolutions/evolutions.json` 登记 `evo-agent-craft` → HITL 批准 → solidify（score_after=0.75，首次入库为基线）
+- **验证**：validate-skill OK（5 技能）；validate-memory / dedup / validate-agent-improvements 均通过
+
 ## 2026-08-13 — 清除全部演示条目
 
 - 回退到 02eb0b2 后，随 1873763 一并回退的演示条目重新出现，本次彻底清除

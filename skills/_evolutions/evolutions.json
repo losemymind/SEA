@@ -1,5 +1,18 @@
 {
   "schema_version": 1,
   "description": "技能候选演进注册表。此文件中的条目未生效，是待评估/待审批的提案。solidify 后合并回对应 SKILL.md。",
-  "evolutions": []
+  "evolutions": [
+    {
+      "id": "evo-agent-craft",
+      "skill": "agent-craft",
+      "kind": "CAPTURED",
+      "signal": "research §10.1/§5.5：自动生成子 Agent 定义以扩充 agent 拓扑；此前只能创建技能、修改已有定义，无'新建 agent'生成器",
+      "proposal": "新增 agent-craft 技能：从任务描述/经验生成子 Agent 定义到 .opencode/agents/，带质量评估、HITL 审批、供应链审计与棘轮回滚",
+      "status": "solidified",
+      "created": "2026-08-14",
+      "solidified_at": "2026-08-14",
+      "score_before": null,
+      "score_after": 0.75
+    }
+  ]
 }
