@@ -2,6 +2,15 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.2.1 — 2026-08-14 — 拓扑搜索闭环（§10.1）
+
+- **`SEA/scripts/search-topology.py`**：多智能体拓扑自动搜索——seeded 候选（single/chain/parallel）→ 评估 → 棘轮保留（score > best 才 approved 入库）→ 变异（加边/删边/换 agent/反转边）迭代搜索；`--dry-run` 只评估既有候选；`--seed` 可复现
+- **`SEA/scripts/validate-topology.py`**：拓扑注册表 schema 校验（id 唯一、必填字段、status 枚举、agent 定义存在、边 from/to 引用完整）
+- **评估复用**：search-topology 通过 importlib 复用 evaluate-skill 的 evaluate_topology（结构 0.4+覆盖 0.3+一致性 0.3）
+- **版本**：0.2.0 → 0.2.1（补丁，新增脚本，向后兼容）
+- **验证**：dry-run 评估既有候选、多 agent 搜索（single/chain/parallel 满分）、变异无改进被棘轮丢弃；validate-topology 在工作区 cwd 下通过
+
+
 ## 0.2.0 — 2026-08-14 — 未来计划落地：工具层进化 + 群体智能 + 拓扑搜索（§10.1/10.3/10.4）
 
 - **工具层进化（§10.3）**：`SEA/tools/_registry/tool-signals.json`（工具失败信号注册表）+ `SEA/scripts/collect-tool-signals.py`（采集 MCP/工具调用失败→修复候选，同工具 3+ 条触发修复流程）；接入收尾协议与 task-retrospective 技能（§3.5）

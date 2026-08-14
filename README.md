@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.2.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.2.1`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -70,6 +70,13 @@ python SEA/scripts/sync-workspace.py --workspace <工作区> --pull --update
 
 # Agent 拓扑评测（§10.1 多智能体拓扑搜索）
 python SEA/scripts/evaluate-skill.py --mode topology
+
+# 拓扑注册表校验（schema + 边引用完整性）
+python SEA/scripts/validate-topology.py --agents-dir .opencode/agents
+
+# 多智能体拓扑自动搜索（生成候选→评估→棘轮保留→变异）
+python SEA/scripts/search-topology.py --budget 10 --agents-dir .opencode/agents
+python SEA/scripts/search-topology.py --dry-run --agents-dir .opencode/agents
 
 # 校验定义改进注册表与棘轮基线
 python SEA/scripts/validate-agent-improvements.py
