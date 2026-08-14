@@ -40,8 +40,8 @@
 - `python SEA/scripts/scan-secrets.py` — 记忆/技能入库前 PII/secret 扫描（检出即拦截）
 - `python SEA/scripts/audit-skill.py` — 技能供应链审计（敏感路径/危险命令/远程脚本/污染）
 - `python SEA/scripts/memory-decay.py` — 记忆衰减检测（久未使用+低命中 → 建议 deprecated）
-- `python SEA/scripts/evaluate-skill.py` — 技能独立评测（L0 启发式 / L1 LLM 判官真实评估，`--split heldout` 只评留出集）
-- `python SEA/scripts/ratchet-gate.py` — 棘轮变更门：检测 pending 候选 → 触发 L1 真实评估 → 通过线 0.7 裁决（选项 B，无候选不评估）
+- `python SEA/scripts/evaluate-skill.py` — 技能独立评测（L0 启发式 / L1 LLM 判官真实评估，`--split heldout` 只评留出集；内联判官协议 `--emit`/`--apply` 免 URL/Key 配置）
+- `python SEA/scripts/ratchet-gate.py` — 棘轮变更门（pending 候选 → L1 真实评估，通过线 0.7；`--active` 主动评估全技能不设预算上限）
 - `python SEA/scripts/report-metrics.py` — 进化指标仪表盘（记忆/技能/改进/演进健康度）
 - `python SEA/scripts/collect-tool-signals.py` — 工具失败信号采集（MCP/工具调用失败 → 修复候选，§10.3）
 - `python SEA/scripts/sync-workspace.py` — 工作区经验回流/下发同步（§10.4）
@@ -50,6 +50,13 @@
 - `python SEA/scripts/tool-fix-candidates.py` — 工具修复候选聚合（§10.3）
 - `python SEA/scripts/workflow-craft.py` — 多智能体工作流实例化（§5.5）
 - `python SEA/scripts/hub-sync.py` — 远程经验 Hub 同步（§10.4）
+
+## 评估纪律
+
+- **模型继承**：L1 判官默认使用**当前会话模型**——调用 `evaluate-skill.py --mode judge` / `ratchet-gate.py` 时，**必须显式传 `--model <当前会话模型名>`**（脚本是独立进程，无法自动感知会话模型）。切换便宜模型：传 `--model <便宜模型>` 或设环境变量 `SEA_EVAL_MODEL`
+- **免配置**：L1 评估优先走**内联判官协议**（`--emit` 生成判定请求 → 用会话模型判定 → `--apply` 收集），无需配置 `SEA_JUDGE_URL/API_KEY`
+- **主动评估**：用户输入「SEA评估」/「SEA 评估」等关键词时，运行 `ratchet-gate.py --active --model <会话模型>` 全量评估所有技能（token 不设上限）
+- **预算**：自动评估（变更门）默认每技能 ≤20 个 verifiable 用例；主动评估不设上限
 
 ## 记忆写入守则
 

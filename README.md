@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.3.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.3.1`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -20,7 +20,7 @@
 | `SEA/memory/` | 长期记忆库（lessons / preferences / verified_facts / NOTES） |
 | `SEA/agents/_improvements/` | 定义改进注册表 + 棘轮基线（P3） |
 | `SEA/templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
-| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics）、工具信号采集（collect-tool-signals）、工作区同步（sync-workspace） |
+| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill L1 内联判官）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics）、工具信号采集（collect-tool-signals）、工作区同步（sync-workspace）、棘轮门（ratchet-gate） |
 | `SEA/CHANGELOG.md` | 进化留痕 |
 | `SEA/EVOLUTION.md` | 自进化整体流程图（权威总览：五步闭环/各层路径/治理/脚本索引/版本记录） |
 | `INSTALL.md` | 安装指南（两种方式 + 路径询问机制 + 升级流程） |
@@ -46,12 +46,15 @@ python SEA/scripts/dedup-check.py 0.5
 # 校验技能 frontmatter 与候选演进注册表（--skills-dir 指向技能库根目录）
 python SEA/scripts/validate-skill.py --skills-dir .opencode/skills
 
-# 技能独立评测（L0 启发式 / L1 LLM 判官真实评估，--split heldout 只评留出集）
+# 技能独立评测（L0 启发式 / L1 LLM 判官真实评估）
 python SEA/scripts/evaluate-skill.py --skills-dir .opencode/skills
-python SEA/scripts/evaluate-skill.py --mode judge --skill tool-craft --split heldout
+python SEA/scripts/evaluate-skill.py --mode judge --skill tool-craft --split heldout --model <会话模型>
 
-# 棘轮变更门（有 pending 候选时才触发 L1 真实评估，通过线 0.7）
-python SEA/scripts/ratchet-gate.py --skills-dir .opencode/skills
+# 棘轮变更门（有 pending 候选时自动触发 L1 评估，通过线 0.7，预算 20）
+python SEA/scripts/ratchet-gate.py --skills-dir .opencode/skills --model <会话模型>
+
+# 主动评估（用户输入「SEA评估」触发；全技能、token 不设上限）
+python SEA/scripts/ratchet-gate.py --active --model <会话模型>
 
 # 技能供应链审计（入库前必查：敏感路径/危险命令/远程脚本/污染）
 python SEA/scripts/audit-skill.py --skills-dir .opencode/skills

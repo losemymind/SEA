@@ -238,21 +238,49 @@ def run_topology_mode(args, templates_dir):
     return 0
 
 
+def resolve_judge_model(args):
+    """判官模型解析：--model（会话模型）> SEA_EVAL_MODEL（便宜模型切换）> SEA_JUDGE_MODEL > 默认。"""
+    import os
+    return (args.model
+            or os.environ.get("SEA_EVAL_MODEL")
+            or os.environ.get("SEA_JUDGE_MODEL")
+            or "gpt-4o-mini")
+
+
+def judge_prompt_text(skill_text, index, p):
+    return (
+        "你是技能评估判官。判断技能是否满足用例的预期。\n"
+        f"== 技能 SKILL.md ==\n{skill_text[:3000]}\n\n"
+        f"== 用例 #{index}（{p.get('category')}） ==\n"
+        f"任务: {p.get('task')}\n预期: {p.get('expect')}\n\n"
+        "请仅输出 0.0~1.0 的一个分数（数字），表示满足程度。"
+    )
+
+
+def apply_budget(cases, budget):
+    """预算控制：budget>0 时只评前 N 个用例；<=0 不设上限。"""
+    if budget and budget > 0:
+        return cases[:budget]
+    return cases
+
+
 def run_judge_mode(args, skills_dir):
-    """LLM-as-Judge（§8.2）：对指定技能的 verifiable test-prompts 调外部 LLM 判官打分。
+    """LLM-as-Judge（§8.2/L1 真实评估）。
 
-    判官配置（环境变量）：
-      SEA_JUDGE_URL       OpenAI 兼容端点（如 https://api.openai.com/v1）
-      SEA_JUDGE_API_KEY   API 密钥
-      SEA_JUDGE_MODEL     模型名（默认 gpt-4o-mini；--model 优先，可直接用当前任务模型）
-    未配置 → 回退确定性打分（eval_source=l0）并提示。
+    两种判官来源：
+      1. 内联判官（推荐，免配置）—— --emit/--apply 协议：
+         --emit <file>  生成判定请求文件（skill 正文 + verifiable 用例），agent 用
+                         当前会话模型逐条判定，写回 <file>.answers.json（scores 数组）
+         --apply <file> 读取判定结果，计算总分输出（eval_source=l1）
+         模型来源：--model（会话模型）> SEA_EVAL_MODEL（便宜模型）> 默认
+      2. HTTP 判官（传统）—— 配置 SEA_JUDGE_URL/API_KEY 时直接调用
+         未配置 → 回退确定性打分（eval_source=l0）并提示。
 
-    L1 真实评估（eval_source=l1）：
-      - 只评 verifiable=true 的用例（可真实判定 pass/fail 的对象）
-      - --split heldout 只评留出集（棘轮计分用）
+    预算：--budget N（>0 只评前 N 个 verifiable 用例；自动评估用推荐值，
+          主动评估传 0 不设上限）。
+    --split heldout 只评留出集（棘轮计分用）。
     """
     import os
-    import urllib.request
 
     skill = args.skill
     if not skill:
@@ -270,32 +298,91 @@ def run_judge_mode(args, skills_dir):
     data = json.loads(tp.read_text(encoding="utf-8"))
     prompts = data.get("prompts", [])
     verifiable = filter_prompts(prompts, split=args.split, verifiable_only=True)
+    verifiable = apply_budget(verifiable, args.budget)
     if not verifiable:
         print(f"[WARN] {skill} 没有 verifiable 用例（--split {args.split}），无可评对象",
               file=sys.stderr)
         return 0
 
+    model = resolve_judge_model(args)
+
+    # ---- 内联判官协议：emit（生成判定请求） ----
+    if args.emit:
+        req = {
+            "protocol": "sea-inline-judge",
+            "version": 1,
+            "skill": skill,
+            "judge_model": model,
+            "skill_text": skill_text[:3000],
+            "cases": [
+                {"index": i, "id": p.get("id"), "category": p.get("category"),
+                 "task": p.get("task"), "expect": p.get("expect")}
+                for i, p in enumerate(verifiable, 1)
+            ],
+        }
+        emit_path = Path(args.emit)
+        emit_path.write_text(json.dumps(req, ensure_ascii=False, indent=2),
+                             encoding="utf-8")
+        print(f"[EMIT] 判定请求已写入 {emit_path}")
+        print(f"请用当前会话模型（{model}）逐条判定，将 scores 数组写回 "
+              f"{emit_path}.answers.json，然后运行 --apply {emit_path}")
+        return 0
+
+    # ---- 内联判官协议：apply（收集判定结果） ----
+    if args.apply:
+        apply_path = Path(args.apply)
+        if not apply_path.exists():
+            print(f"[ERROR] 判定请求不存在: {apply_path}", file=sys.stderr)
+            return 1
+        answers_path = apply_path.with_suffix(apply_path.suffix + ".answers.json")
+        if not answers_path.exists():
+            print(f"[ERROR] 判定结果不存在: {answers_path}（请先用会话模型判定并写回）",
+                  file=sys.stderr)
+            return 1
+        try:
+            ans = json.loads(answers_path.read_text(encoding="utf-8"))
+        except ValueError as e:
+            print(f"[ERROR] 判定结果解析失败: {e}", file=sys.stderr)
+            return 1
+        scores = ans.get("scores") if isinstance(ans, dict) else ans
+        if not isinstance(scores, list) or len(scores) != len(verifiable):
+            print(f"[ERROR] scores 应为长度 {len(verifiable)} 的数组（实际 {len(scores) if isinstance(scores, list) else '?'}）",
+                  file=sys.stderr)
+            return 1
+        results = [max(0.0, min(1.0, float(s))) for s in scores]
+        results = [round(s, 3) for s in results]
+        total = round(sum(results) / len(results), 3) if results else 0.0
+        if args.json:
+            print(json.dumps({"schema_version": 1, "mode": "judge",
+                              "skill": skill, "judge_model": model,
+                              "eval_source": "l1", "split": args.split,
+                              "judge_protocol": "inline",
+                              "verifiable_cases": len(verifiable),
+                              "score": total, "per_prompt": results},
+                             ensure_ascii=False, indent=2))
+        else:
+            per = " ".join(f"p{i}={s:.2f}" for i, s in enumerate(results, 1))
+            print(f"{skill}: {total}  (judge={model} split={args.split} "
+                  f"inline l1: {per})")
+        return 0
+
+    # ---- HTTP 判官（传统路径） ----
+    import urllib.request
     url = os.environ.get("SEA_JUDGE_URL")
     api_key = os.environ.get("SEA_JUDGE_API_KEY")
-    model = args.model or os.environ.get("SEA_JUDGE_MODEL", "gpt-4o-mini")
     if not url or not api_key:
-        # 回退确定性打分（L0）
+        # 无 HTTP 配置时，推荐走内联协议（--emit/--apply）
         name, _, scores = check_skill(skill_dir)
         total = round(sum(scores) / len(scores), 3) if scores else 0.0
-        print(f"[WARN] 未配置 SEA_JUDGE_URL/SEA_JUDGE_API_KEY，回退确定性打分 "
-              f"(score={total}, eval_source=l0)", file=sys.stderr)
+        print(f"[WARN] 未配置 SEA_JUDGE_URL/API_KEY。建议使用内联判官协议：", file=sys.stderr)
+        print(f"      python {sys.argv[0]} --mode judge --skill {skill} --split {args.split or 'heldout'} --emit <file>", file=sys.stderr)
+        print(f"      用会话模型判定后 --apply <file>。当前回退确定性打分 (score={total}, l0)", file=sys.stderr)
         print(f"{name}: {total}  (fallback heuristic)")
         return 0
 
     results = []
     for i, p in enumerate(verifiable, 1):
-        judge_prompt = (
-            "你是技能评估判官。判断技能是否满足用例的预期。\n"
-            f"== 技能 SKILL.md ==\n{skill_text[:3000]}\n\n"
-            f"== 用例 #{i}（{p.get('category')}） ==\n"
-            f"任务: {p.get('task')}\n预期: {p.get('expect')}\n\n"
-            "请仅输出 0.0~1.0 的一个分数（数字），表示满足程度。"
-        )
+        judge_prompt = judge_prompt_text(skill_text, i, p)
         payload = json.dumps({
             "model": model,
             "messages": [{"role": "user", "content": judge_prompt}],
@@ -323,13 +410,14 @@ def run_judge_mode(args, skills_dir):
         print(json.dumps({"schema_version": 1, "mode": "judge",
                           "skill": skill, "judge_model": model,
                           "eval_source": "l1", "split": args.split,
+                          "judge_protocol": "http",
                           "verifiable_cases": len(verifiable),
                           "score": total, "per_prompt": results},
                          ensure_ascii=False, indent=2))
     else:
         per = " ".join(f"p{i}={s:.2f}" for i, s in enumerate(results, 1))
         print(f"{skill}: {total}  (judge={model} split={args.split} "
-              f"l1: {per})")
+              f"http l1: {per})")
     return 0
 
 
@@ -345,7 +433,13 @@ def main():
     ap.add_argument("--split", choices=["train", "heldout"], default=None,
                     help="只评指定 split 的用例（棘轮计分固定用 heldout）")
     ap.add_argument("--model", type=str, default=None,
-                    help="LLM 判官模型（优先于 SEA_JUDGE_MODEL；可直接传当前任务模型名）")
+                    help="LLM 判官模型（优先于 SEA_EVAL_MODEL/SEA_JUDGE_MODEL；agent 评估时直接传会话模型名）")
+    ap.add_argument("--budget", type=int, default=0,
+                    help="单次评估最多评 N 个 verifiable 用例（>0；0 不设上限。自动评估用推荐值，主动评估传 0）")
+    ap.add_argument("--emit", type=str, default=None,
+                    help="内联判官协议：生成判定请求文件（用会话模型判定后 --apply）")
+    ap.add_argument("--apply", type=str, default=None,
+                    help="内联判官协议：读取判定请求并计算分数（需 <file>.answers.json 含 scores 数组）")
     args = ap.parse_args()
 
     if args.mode == "topology":

@@ -2,7 +2,7 @@
 
 > 本文件是框架自进化机制的**权威总览**。任何机制/脚本/流程变更必须同步更新本文件，保持与代码一致。
 
-当前版本：`0.3.0`（见 `VERSION`）
+当前版本：`0.3.1`（见 `VERSION`）
 
 ## 总览流程图
 
@@ -98,7 +98,10 @@
 - **评估器 > 生成器**：一切持久化改动先过 `evaluate-*`/`validate-*`
 - **棘轮**：`score_after > best_score` 才保留，基线单调不降（improvements.json + baselines.json + evolutions.json + topology.json 各自持有）
 - **评估触发 = 变更门（选项 B）**：只有 evolutions/improvements 存在 pending 候选需要裁决时才触发 L1 真实评估（`ratchet-gate.py`）；无候选不评估，token 与价值对齐
-- **L1 真实评估**：对 `verifiable: true` 的 heldout 用例调 LLM 判官打分（`evaluate-skill.py --mode judge --split heldout`），通过线 0.7；无 JUDGE 配置回退启发式（l0）并保守回滚
+- **L1 真实评估**：对 `verifiable: true` 的 heldout 用例做真实判定（`evaluate-skill.py --mode judge --split heldout`），通过线 0.7；**内联判官协议**（`--emit`/`--apply`）让 agent 用当前会话模型判定，免 URL/Key 配置
+- **主动评估**：用户输入「SEA评估」关键词 → `ratchet-gate.py --active` 全量评估（token 不设上限）
+- **预算**：自动评估（变更门）默认每技能 ≤20 个 verifiable 用例；主动评估不设上限
+- **模型继承**：L1 判官默认当前会话模型（调用时显式传 `--model`）；`SEA_EVAL_MODEL` 环境变量可切换便宜模型
 - **可回滚**：全部产物 git 化，CHANGELOG 留痕
 - **按最轻层**：记忆 → 技能 → 代码 → 参数（当前未到参数层）
 - **HITL 分权**：记忆自动、技能/定义/工具人工审批（评估可信后重大变更才介入）
@@ -112,8 +115,8 @@
 | dedup-check.py | 记忆 | 近重复检测 |
 | memory-decay.py | 记忆 | 衰减/遗忘候选 |
 | validate-skill.py | 技能 | frontmatter + evolutions schema |
-| evaluate-skill.py | 横切 | 确定性打分 / 拓扑 / LLM 判官（L1 真实评估，--split/--model） |
-| ratchet-gate.py | 横切 | 棘轮变更门：pending 候选 → L1 评估 → 裁决（通过线 0.7） |
+| evaluate-skill.py | 横切 | L0 启发式 / L1 LLM 判官真实评估（内联协议 --emit/--apply，--split/--budget/--model） |
+| ratchet-gate.py | 横切 | 棘轮变更门（pending→L1 评估，通过线 0.7）+ 主动评估（--active 全技能无上限） |
 | audit-skill.py | 横切 | 供应链审计 |
 | scan-secrets.py | 横切 | PII/secret 扫描 |
 | validate-agent-improvements.py | 定义 | 改进注册表 + 棘轮一致性 |
@@ -141,3 +144,4 @@
 | 0.2.2 | 2026-08-14 | 工具修复闭环/工作流实例化/LLM 判官/远程 Hub |
 | 0.2.3 | 2026-08-14 | EVOLUTION.md 整体流程图文档 |
 | 0.3.0 | 2026-08-14 | 评估器真话化：L1 真实评估（verifiable/split）+ ratchet-gate 变更门 |
+| 0.3.1 | 2026-08-14 | 模型继承+主动评估：内联判官协议（免配置）、SEA评估 关键词、budget 分级 |
