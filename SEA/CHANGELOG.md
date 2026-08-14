@@ -2,6 +2,13 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.1.1 — 2026-08-14 — agent-definition 模板补 model 字段说明
+
+- **模板**：`SEA/templates/agent-definition.md` frontmatter 补充可选 `model` 字段注释——不填则 subagent 默认使用调用它的主 Agent 的模型（primary agent 用全局配置模型）
+- **技能**：`skills/agent-craft/SKILL.md` 注明 `model` 可选及默认行为，需要专用模型时才显式指定
+- **版本**：0.1.0 → 0.1.1（补丁，非破坏性）
+- **验证**：`framework-version.py --check` 通过；validate-skill 通过
+
 ## 2026-08-14 — 新技能：agent-craft（子 Agent 生成）
 
 - **技能**：`skills/agent-craft/SKILL.md`（CAPTURED，来源于 research §10.1/§5.5）— 从任务描述/历史经验生成子 Agent 定义到 `.opencode/agents/` 或全局 agents 目录，流程：登记 pending → 生成 → 结构/效果评估 → HITL 审批 → 棘轮保留/回滚，含供应链审计与最小权限

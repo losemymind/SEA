@@ -3,6 +3,7 @@ name: <agent-name>
 description: <一句话描述：用途、适用场景、何时被调用>
 mode: subagent
 temperature: 0.2
+# model: <provider/model-id>（可选；不填则 subagent 默认使用调用它的主 Agent 的模型，primary agent 使用全局配置模型）
 ---
 
 # <Agent 名称> — 人格与纪律
