@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.1.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.1.3`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -20,7 +20,7 @@
 | `SEA/memory/` | 长期记忆库（lessons / preferences / verified_facts / NOTES） |
 | `SEA/agents/_improvements/` | 定义改进注册表 + 棘轮基线（P3） |
 | `SEA/templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
-| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML） |
+| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics） |
 | `SEA/CHANGELOG.md` | 进化留痕 |
 | `INSTALL.md` | 安装指南（两种方式 + 路径询问机制 + 升级流程） |
 | `VERSION` | 框架版本号（与 `SEA/VERSION` 一致） |
@@ -44,6 +44,22 @@ python SEA/scripts/dedup-check.py 0.5
 
 # 校验技能 frontmatter 与候选演进注册表（--skills-dir 指向技能库根目录）
 python SEA/scripts/validate-skill.py --skills-dir .opencode/skills
+
+# 技能独立评测（棘轮 score_before/score_after 用）
+python SEA/scripts/evaluate-skill.py --skills-dir .opencode/skills
+
+# 技能供应链审计（入库前必查：敏感路径/危险命令/远程脚本/污染）
+python SEA/scripts/audit-skill.py --skills-dir .opencode/skills
+
+# 入库前 PII/secret 扫描（检出即拦截）
+python SEA/scripts/scan-secrets.py
+
+# 记忆衰减检测（久未使用+低命中 → 建议 deprecated；--mark 实际写入）
+python SEA/scripts/memory-decay.py
+python SEA/scripts/memory-decay.py --mark
+
+# 进化指标仪表盘（记忆/技能/改进/演进健康度）
+python SEA/scripts/report-metrics.py --skills-dir .opencode/skills
 
 # 校验定义改进注册表与棘轮基线
 python SEA/scripts/validate-agent-improvements.py

@@ -35,6 +35,14 @@
 4. 更新 `SEA/CHANGELOG.md`（改动内容、来源会话、验证结果）
 5. 提交 git（信息含条目 id 与来源）
 
+## 守卫脚本（每次任务结束可选跑）
+
+- `python SEA/scripts/scan-secrets.py` — 记忆/技能入库前 PII/secret 扫描（检出即拦截）
+- `python SEA/scripts/audit-skill.py` — 技能供应链审计（敏感路径/危险命令/远程脚本/污染）
+- `python SEA/scripts/memory-decay.py` — 记忆衰减检测（久未使用+低命中 → 建议 deprecated）
+- `python SEA/scripts/evaluate-skill.py` — 技能独立评测（棘轮 score_before/score_after 用）
+- `python SEA/scripts/report-metrics.py` — 进化指标仪表盘（记忆/技能/改进/演进健康度）
+
 ## 记忆写入守则
 
 - 分类：`preference`（个人偏好）/ `experience`（历史经验）/ `engineering`（工程知识）

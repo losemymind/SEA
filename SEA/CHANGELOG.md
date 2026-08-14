@@ -2,6 +2,20 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.1.3 — 2026-08-14 — 评估器/守卫/遗忘/仪表盘 四类新脚本
+
+补齐 §8「评估器比生成器更重要」与硬规则 5「可持续 = 会遗忘」、§5.4 供应链审计、§7.1 PII 治理的落地实现：
+
+- **评估器（A1/A2）**：`SEA/scripts/evaluate-skill.py` — 独立确定性评测器，从 test-prompts 的 expect 提取特征短语，计算对 SKILL.md 的覆盖度打分；failure 用例强制要求反例章节。棘轮 score_before/score_after 从此有可复现基线（替代生成器自评）
+- **供应链审计（C7）**：`SEA/scripts/audit-skill.py` — 静态扫描技能目录：敏感路径读取/危险命令/远程脚本下载/写入 secret/污染他方技能或全局库（纯路径引用豁免，仅写操作动词判定）
+- **PII/secret 扫描（B6）**：`SEA/scripts/scan-secrets.py` — 检出 API key/token/私钥块/云密钥签名/邮箱/手机号，含占位符豁免，检出仅提示不自动改
+- **记忆衰减（B4）**：`SEA/scripts/memory-decay.py` — 健康分 = 0.6·指数衰减(age) + 0.4·命中活跃度(hits)，低于阈值建议 deprecated；`--mark` 实际写入
+- **指标仪表盘（C8）**：`SEA/scripts/report-metrics.py` — 记忆库/技能库/定义改进/技能演进汇总 + 健康提示（复用 evaluate-skill 打分逻辑，importlib 加载含连字符文件名）
+- **纪律更新**：`AGENTS.md` 新增「守卫脚本」小节（收尾协议后可选跑）；README/INSTALL 命令清单补充 5 个新脚本
+- **版本**：0.1.2 → 0.1.3（次版本，新增机制，向后兼容）
+- **验证**：全部新脚本自测通过（evaluate-skill 确定性复现、audit-skill 0 危险信号、scan-secrets 0 检出、memory-decay 阈值调严正确检出、report-metrics 正常输出）
+
+
 ## 0.1.2 — 2026-08-14 — AGENTS.md 硬规则新增元规则第 0 条
 
 - **定义**：硬规则顶部新增第 0 条元规则「自进化是至高目标」——任何阻碍自进化的规则/方案/方法可变更，不得以既有纪律为由阻止框架改进（来源：用户纠正 m-20260814-006）
