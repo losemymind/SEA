@@ -1,0 +1,4 @@
+{
+  "_doc": "工具失败信号注册表（§10.3 工具层进化）。MCP/自定义工具调用失败时，agent 在收尾协议中追加一条信号；累积到阈值或出现可归类模式后，触发工具修复候选（走 skill-craft/agent-improvement 类似流程）。字段：id(t-YYYYMMDD-NNN), tool(工具名), timestamp(ISO), signal{type[call-failure|missing|broken|slow|unsafe], detail}, context(可选：触发场景), status[pending|analyzed|fixed|wonfix], created",
+  "signals": []
+}

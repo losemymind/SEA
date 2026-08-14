@@ -6,7 +6,7 @@ entries:
   - id: m-20260813-004
     type: fact
     category: engineering
-    claim: 本仓库 YAML 文件（lessons/preferences/verified_facts）顶部说明行必须以 # 注释开头，否则 YAML 解析报 mapping values are not allowed here
+    claim: "本仓库 YAML 文件（lessons/preferences/verified_facts）顶部说明行必须以 # 注释开头，否则 YAML 解析报 mapping values are not allowed here"
     evidence: ["复制测试中 lessons.yaml 与 verified_facts.yaml 各失败一次，加 # 后通过"]
     contrast: 失败侧——说明行未加 # 导致两个校验脚本双双报错
     confidence: 0.95

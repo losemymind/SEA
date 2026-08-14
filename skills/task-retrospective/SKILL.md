@@ -31,6 +31,11 @@ description: 任务收尾反思与经验沉淀。每次完成任务后调用：�
 3. 跑 `python SEA/scripts/dedup-check.py`，疑似重复则与既有条目合并（保留证据更强、时间更新的）
 4. 更新 `SEA/CHANGELOG.md`（条目 id、来源、验证结果）
 
+### 3.5 工具信号（可选，§10.3）
+- 若本次任务中 MCP/自定义工具调用失败、缺失、返回结构损坏或行为异常：
+  `python SEA/scripts/collect-tool-signals.py <tool> --type <type> --detail "<说明>"`
+- 同工具累计 3+ 条 pending → 触发工具修复候选流程（登记待修工具清单）
+
 ### 4. Internalize — 内化（可选）
 - 若该流程会重复出现 → 固化为技能（复制 `SEA/templates/skill-template/` 新建）
 - 若是常适用的行为约定 → 向 AGENTS.md 提出修订（需 HITL 审批）

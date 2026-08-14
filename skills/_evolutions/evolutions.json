@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "技能候选演进注册表。此文件中的条目未生效，是待评估/待审批的提案。solidify 后合并回对应 SKILL.md。",
+  "description": "技能候选演进注册表。此文件中的条目未生效，是待评估/待审批的提案。solidify 后合并回对应 SKILL.md。条目可带 parent_id 指向父演进条目，形成谱系 DAG。",
   "evolutions": [
     {
       "id": "evo-agent-craft",

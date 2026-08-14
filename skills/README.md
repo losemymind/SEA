@@ -18,6 +18,7 @@
 - **候选区**：`_evolutions/evolutions.json` 中的条目**不会生效**，只是提案
 - **solidify**：审批通过后合并回 `SKILL.md`（失败类→`Troubleshooting`；用户纠正→`Examples`）
 - **谱系**：FIX（修补失效说明）/ DERIVED（派生增强变体）/ CAPTURED（从成功执行抽取全新流程）
+- **谱系 DAG**（§10.4）：条目可带 `parent_id` 指向父演进条目，形成版本谱系树（OpenSpace 思路）；不指向已存在条目的 `parent_id` 会被 `validate-skill.py` 拦截
 - **回滚**：任何一轮验证不通过 → 从 SKILL.md 移除，状态置 reverted
 
 ## 技能目录约定

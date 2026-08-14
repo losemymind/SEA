@@ -1,0 +1,16 @@
+{
+  "_doc": "Agent 拓扑注册表（§10.1 多智能体拓扑自动搜索）。一个拓扑 = 一组 agent 节点 + 它们之间的调用边（谁用 Task 调谁），对应 ADAS/AFlow 思路的 agent 程序空间。每个候选拓扑带评测状态与棘轮参考。字段：id(tp-YYYYMMDD-NNN), name, description, agents[]（引用 .opencode/agents/ 或 SEA/templates 中的 agent 定义）, edges[]（{from, to, when}）, status[pending|approved|reverted], score(可选), created, source",
+  "topologies": [
+    {
+      "id": "tp-20260814-001",
+      "name": "单核实员拓扑",
+      "description": "基线拓扑：单个 ue-api-verifier 子 Agent 独立完成 UE 事实核实（§10.1 演示候选）",
+      "agents": ["ue-api-verifier"],
+      "edges": [],
+      "status": "pending",
+      "score": null,
+      "created": "2026-08-14",
+      "source": "session 2026-08-14 agent-craft 演示"
+    }
+  ]
+}

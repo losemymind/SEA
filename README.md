@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.1.3`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.2.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -20,7 +20,7 @@
 | `SEA/memory/` | 长期记忆库（lessons / preferences / verified_facts / NOTES） |
 | `SEA/agents/_improvements/` | 定义改进注册表 + 棘轮基线（P3） |
 | `SEA/templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
-| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics） |
+| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics）、工具信号采集（collect-tool-signals）、工作区同步（sync-workspace） |
 | `SEA/CHANGELOG.md` | 进化留痕 |
 | `INSTALL.md` | 安装指南（两种方式 + 路径询问机制 + 升级流程） |
 | `VERSION` | 框架版本号（与 `SEA/VERSION` 一致） |
@@ -60,6 +60,16 @@ python SEA/scripts/memory-decay.py --mark
 
 # 进化指标仪表盘（记忆/技能/改进/演进健康度）
 python SEA/scripts/report-metrics.py --skills-dir .opencode/skills
+
+# 工具失败信号采集（MCP/工具调用失败 → 修复候选，§10.3）
+python SEA/scripts/collect-tool-signals.py <tool> --type <call-failure|missing|broken|slow|unsafe> --detail "<说明>"
+
+# 工作区 ↔ 框架仓库 双向同步（经验回流/下发，§10.4）
+python SEA/scripts/sync-workspace.py --workspace <工作区> --push
+python SEA/scripts/sync-workspace.py --workspace <工作区> --pull --update
+
+# Agent 拓扑评测（§10.1 多智能体拓扑搜索）
+python SEA/scripts/evaluate-skill.py --mode topology
 
 # 校验定义改进注册表与棘轮基线
 python SEA/scripts/validate-agent-improvements.py

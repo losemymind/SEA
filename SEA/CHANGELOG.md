@@ -2,6 +2,16 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.2.0 — 2026-08-14 — 未来计划落地：工具层进化 + 群体智能 + 拓扑搜索（§10.1/10.3/10.4）
+
+- **工具层进化（§10.3）**：`SEA/tools/_registry/tool-signals.json`（工具失败信号注册表）+ `SEA/scripts/collect-tool-signals.py`（采集 MCP/工具调用失败→修复候选，同工具 3+ 条触发修复流程）；接入收尾协议与 task-retrospective 技能（§3.5）
+- **群体智能（§10.4）**：`SEA/scripts/sync-workspace.py` 双向同步（工作区↔框架仓库）：memory/agents/tools/skills/scripts/templates；yaml 按 id 合并、json 注册表按 id 合并、冲突仅报告不静默覆盖；`--update` 按 mtime+size 更新脚本/模板、`--overwrite` 整体覆盖、`--dry-run` 模拟
+- **谱系 DAG**：evolutions.json 条目支持 `parent_id`（OpenSpace 版本谱系思路），`validate-skill.py` 两遍校验（id 唯一 + parent_id 引用完整性）
+- **拓扑搜索（§10.1）**：`SEA/agents/topology.json`（agent 拓扑注册表）+ `evaluate-skill.py --mode topology`（结构 0.4 + 定义覆盖 0.3 + 边一致性 0.3 确定性打分）；首个候选 tp-20260814-001 登记
+- **版本**：0.1.3 → 0.2.0（次版本：新增机制，向后兼容）
+- **验证**：tool-signals 增删/统计通过；sync-workspace push/pull/update/conflict 全路径实测；parent_id 非法引用被拦截；topology 在工作区 cwd 下 coverage=1.0
+
+
 ## 0.1.3 — 2026-08-14 — 评估器/守卫/遗忘/仪表盘 四类新脚本
 
 补齐 §8「评估器比生成器更重要」与硬规则 5「可持续 = 会遗忘」、§5.4 供应链审计、§7.1 PII 治理的落地实现：

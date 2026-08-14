@@ -42,6 +42,8 @@
 - `python SEA/scripts/memory-decay.py` — 记忆衰减检测（久未使用+低命中 → 建议 deprecated）
 - `python SEA/scripts/evaluate-skill.py` — 技能独立评测（棘轮 score_before/score_after 用）
 - `python SEA/scripts/report-metrics.py` — 进化指标仪表盘（记忆/技能/改进/演进健康度）
+- `python SEA/scripts/collect-tool-signals.py` — 工具失败信号采集（MCP/工具调用失败 → 修复候选，§10.3）
+- `python SEA/scripts/sync-workspace.py` — 工作区经验回流/下发同步（§10.4）
 
 ## 记忆写入守则
 

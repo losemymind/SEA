@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
-"""evaluate-skill.py — 独立技能评测器（替代生成器自评，为棘轮提供可复现基线）。
+"""evaluate-skill.py — 独立评测器（替代生成器自评，为棘轮提供可复现基线）。
 
-原理：确定性覆盖度打分。对每个技能自带的 test-prompts.json：
-  1. 从每个用例的 expect 中提取关键短语（去除标点后的子串特征）
-  2. 检查这些特征是否出现在 SKILL.md 正文中（覆盖度 = 命中的特征 / 总特征）
-  3. 用例得分 = 覆盖度；技能得分 = 所有用例得分的均值
-  4. failure 类用例要求 SKILL.md 有"反例/不要这样"约束，故对 failure 用例
-     额外检查反例章节存在性
+两种模式:
+  1. 技能评测（默认）: 确定性覆盖度打分。对每个技能自带的 test-prompts.json：
+     - 从每个用例的 expect 中提取关键短语（去除标点后的子串特征）
+     - 检查这些特征是否出现在 SKILL.md 正文中（覆盖度 = 命中的特征 / 总特征）
+     - 用例得分 = 覆盖度；技能得分 = 所有用例得分的均值
+     - failure 类用例要求 SKILL.md 有"反例/不要这样"约束，故对 failure 用例
+       额外检查反例章节存在性
+  2. 拓扑评测（--mode topology, §10.1）: 对 SEA/agents/topology.json 中的每个
+     agent 拓扑候选打分，分量 = 结构完整性(0.4) + agent 定义覆盖(0.3) +
+     调用边一致性(0.3)。
 
-用途：在技能创建/演进前后各跑一次，得到 score_before / score_after，
-供 P2 技能生命周期与棘轮使用。分数是确定性的，不依赖 LLM。
+用途：在技能/拓扑创建或演进前后各跑一次，得到 score_before / score_after，
+供 P2/P3 生命周期与棘轮使用。分数是确定性的，不依赖 LLM。
 
 用法:
     python SEA/scripts/evaluate-skill.py [--skills-dir <技能库根目录>] [--json]
+    python SEA/scripts/evaluate-skill.py --mode topology [--json]
 
 输出:
-    无 --json: 逐技能打印每个用例得分与技能总分
-    --json:    输出 JSON 供脚本消费（含 skill、score、per_prompt）
+    无 --json: 逐技能/拓扑打印每个用例得分与总分
+    --json:    输出 JSON 供脚本消费（含 name、score、per_prompt/components）
 
 退出码: 0 正常（即使分数低也正常，分数仅供对比）；1 参数/IO 错误。
 零第三方依赖（仅标准库）。
@@ -114,12 +119,112 @@ def resolve_skills_dir(args_skills_dir):
     return candidates[-1]
 
 
+# ---- 拓扑评测（§10.1） ----
+TOPO_FIELDS = ["id", "name", "description", "agents", "status"]
+EDGE_FIELDS = ["from", "to"]
+
+
+def evaluate_topology(topo: dict, agents_dir: Path, templates_dir: Path):
+    """对一个拓扑候选打分（0~1，确定性启发式）。
+
+    分量:
+      structure  (0.4): 字段完整、agents/edges 非空且格式正确
+      coverage   (0.3): 引用的 agent 定义文件真实存在（agents_dir 或 templates）
+      coherence  (0.3): 边端点都指向拓扑内 agent、无悬空引用
+    """
+    missing = [f for f in TOPO_FIELDS if not topo.get(f)]
+    struct = 0.0 if missing else 1.0
+
+    agents = topo.get("agents", [])
+    edges = topo.get("edges", [])
+    agent_names = set()
+    cov_total, cov_hit = 0, 0
+    if isinstance(agents, list):
+        for a in agents:
+            if isinstance(a, str):
+                agent_names.add(a)
+                cov_total += 1
+                fname = f"{a}.md"
+                if (agents_dir / fname).exists() or (templates_dir / fname).exists():
+                    cov_hit += 1
+            else:
+                cov_total += 1  # 非字符串 agent 视为格式错误，不算命中
+    coverage = (cov_hit / cov_total) if cov_total else 0.0
+
+    coh_bad = 0
+    coh_total = 0
+    if isinstance(edges, list):
+        for e in edges:
+            if not isinstance(e, dict):
+                coh_bad += 1
+                coh_total += 1
+                continue
+            ef = [f for f in EDGE_FIELDS if not e.get(f)]
+            coh_total += 1
+            if ef:
+                coh_bad += 1
+            elif e["from"] not in agent_names or e["to"] not in agent_names:
+                coh_bad += 1  # 边端点悬空
+    coherence = (coh_total - coh_bad) / coh_total if coh_total else (1.0 if agents else 0.5)
+
+    score = 0.4 * struct + 0.3 * coverage + 0.3 * coherence
+    return round(score, 3), {
+        "structure": round(struct, 3),
+        "coverage": round(coverage, 3),
+        "coherence": round(coherence, 3),
+    }
+
+
+def run_topology_mode(args, templates_dir):
+    topo_path = ROOT / "agents" / "topology.json"
+    if not topo_path.exists():
+        print(f"[ERROR] 拓扑注册表不存在: {topo_path}", file=sys.stderr)
+        return 1
+    import json as _json
+    try:
+        data = _json.loads(topo_path.read_text(encoding="utf-8"))
+    except ValueError as e:
+        print(f"[ERROR] topology.json 解析失败: {e}", file=sys.stderr)
+        return 1
+    topologies = data.get("topologies", []) or []
+    agents_dir = Path.cwd() / ".opencode" / "agents"
+
+    results = []
+    for t in topologies:
+        score, parts = evaluate_topology(t, agents_dir, templates_dir)
+        results.append({
+            "topology": t.get("id"),
+            "name": t.get("name"),
+            "score": score,
+            "components": parts,
+            "status": t.get("status"),
+        })
+
+    if args.json:
+        print(_json.dumps({"schema_version": 1, "mode": "topology",
+                           "results": results}, ensure_ascii=False, indent=2))
+        return 0
+    for r in results:
+        c = r["components"]
+        print(f"{r['topology']} {r['name']}: {r['score']:.3f} "
+              f"(struct={c['structure']:.2f} cov={c['coverage']:.2f} coh={c['coherence']:.2f}) "
+              f"[{r['status']}]")
+    if not results:
+        print("拓扑注册表为空，无候选。")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--skills-dir", type=str, default=None,
                     help="技能库根目录（默认自动探测 .opencode/skills → 仓库根 skills/）")
     ap.add_argument("--json", action="store_true", help="输出 JSON")
+    ap.add_argument("--mode", choices=["skill", "topology"], default="skill",
+                    help="评测对象：技能（默认）或 agent 拓扑（§10.1）")
     args = ap.parse_args()
+
+    if args.mode == "topology":
+        return run_topology_mode(args, ROOT / "templates")
 
     skills_dir = resolve_skills_dir(args.skills_dir)
     if not skills_dir.exists():

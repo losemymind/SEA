@@ -128,6 +128,7 @@ def check_evolutions(skills_dir, errors):
         return
     evos = data.get("evolutions", [])
     seen = set()
+    # 第一遍：收集 id 与字段级校验
     for i, evo in enumerate(evos, 1):
         for field in REQUIRED_EVO:
             if field not in evo:
@@ -141,6 +142,13 @@ def check_evolutions(skills_dir, errors):
             if eid in seen:
                 errors.append(f"evolutions.json 条目#{i}: id 重复 {eid}")
             seen.add(eid)
+        if evo.get("parent_id") is not None and not isinstance(evo.get("parent_id"), str):
+            errors.append(f"evolutions.json 条目#{i}: parent_id 应为字符串")
+    # 第二遍：parent_id 引用完整性（允许指向自身=根节点标记）
+    for i, evo in enumerate(evos, 1):
+        pid = evo.get("parent_id")
+        if pid is not None and pid not in seen:
+            errors.append(f"evolutions.json 条目#{i}: parent_id {pid} 指向不存在的演进条目")
 
 
 def main():
