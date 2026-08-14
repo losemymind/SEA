@@ -2,6 +2,13 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.3.6 — 2026-08-14 — agent-definition 模板补 permission 字段
+
+- **模板**：`SEA/templates/agent-definition.md` frontmatter 新增 `permission`（read/grep/glob/bash allow 默认），生成子 Agent 时按职责最小化调整
+- **技能**：`skills/agent-craft/SKILL.md` 同步——模板默认只读放行 + bash；只读任务 `bash: deny`，需执行则配命令白名单；不写则沿用主 Agent 全局权限
+- **版本**：0.3.5 → 0.3.6（补丁，模板增强，向后兼容）
+
+
 ## 0.3.5 — 2026-08-14 — 修复 evolutions 注册表路径（跟随解析后的技能库根目录）
 
 承接 0.3.4 发现的关联问题：`ratchet-gate.py`/`report-metrics.py` 读取技能演进注册表时固定指向 `ROOT.parent / "skills" / "_evolutions"`，在工作区（方式二）下该路径不存在。

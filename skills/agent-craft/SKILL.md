@@ -29,6 +29,7 @@ description: 从任务描述或历史经验生成新的子 Agent 定义文件（
 - 复制 `SEA/templates/agent-definition.md` 到目标位置：工作区 `.opencode/agents/<name>.md` 或全局 `~/.config/opencode/agents/<name>.md`
 - frontmatter 必填：`name`（kebab-case，与文件名一致）、`description`（含触发条件，供 Task 工具自动匹配）、`mode: subagent`、`temperature`
 - `model` 可选：不填则 subagent 默认使用调用它的主 Agent 的模型（primary agent 使用全局配置模型）；需要专用模型（如更快/更省）时才显式指定
+- `permission` 模板默认只读放行（read/grep/glob）+ bash：生成时按职责最小化调整（只读任务可 `bash: deny`，需执行的可 `bash: allow` 配具体命令白名单）；不写权限则子 Agent 沿用主 Agent 的全局权限
 - 正文按模板各小节填：硬规则 / 身份与记忆 / 核心使命 / 关键技术交付物 / 调试清单 / 响应契约 / 版本纪律 / 学习与记忆
 - 若生成多个子 Agent，检查职责不重叠、边界清晰
 
