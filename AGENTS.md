@@ -1,6 +1,6 @@
 # AGENTS.md — 可持续进化 Agent 纪律
 
-本文件是随仓库常驻注入的指令。它定义本仓库所托管 agent（及引用本仓库的 agent）如何**持续进化而不退化**。详细设计见 `sustainable-agent-research.md`，安装方式见 `INSTALL.md`。
+本文件是随仓库常驻注入的指令。它定义本仓库所托管 agent（及引用本仓库的 agent）如何**持续进化而不退化**。详细设计见 `sustainable-agent-research.md`，安装方式见 `INSTALL.md`，**自进化整体流程图见 `SEA/EVOLUTION.md`（机制/脚本/流程变更必须同步更新该文件）**。
 
 > **路径约定**：运行时（脚本/记忆/模板/注册表）统一放在 `SEA/` 目录下；技能库根目录可能是全局（`~/.config/opencode/skills/`）或工作区（`.opencode/skills/`），下文以 `<skills-root>` 指代。安装说明见 `INSTALL.md`。
 

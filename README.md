@@ -22,6 +22,7 @@
 | `SEA/templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
 | `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics）、工具信号采集（collect-tool-signals）、工作区同步（sync-workspace） |
 | `SEA/CHANGELOG.md` | 进化留痕 |
+| `SEA/EVOLUTION.md` | 自进化整体流程图（权威总览：五步闭环/各层路径/治理/脚本索引/版本记录） |
 | `INSTALL.md` | 安装指南（两种方式 + 路径询问机制 + 升级流程） |
 | `VERSION` | 框架版本号（与 `SEA/VERSION` 一致） |
 | `sustainable-agent-research.md` | 设计文档（研究结论 + 未来计划） |
