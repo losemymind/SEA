@@ -124,7 +124,8 @@
 ### 升级前检查已装工作区
 ```powershell
 # 列出/检查已安装工作区是否过期（在框架仓库根目录运行）
-python SEA/scripts/framework-version.py --installed E:\TempOpenWork
+# <工作区> 为已安装 SEA 的目标工作区路径（如 E:\TempOpenWork）
+python SEA/scripts/framework-version.py --installed <工作区>
 ```
 
 ### 升级步骤（改动框架本身时）

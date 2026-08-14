@@ -52,10 +52,11 @@ python SEA/scripts/validate-agent-improvements.py
 python SEA/scripts/verify-versions.py
 python SEA/scripts/verify-versions.py --stale 30
 
-# 框架版本（打印 / 检查两处一致 / 检查工作区是否过期）
+# 框架版本（打印 / 检查两处一致 / 检查已安装工作区是否过期）
 python SEA/scripts/framework-version.py
 python SEA/scripts/framework-version.py --check
-python SEA/scripts/framework-version.py --installed E:\TempOpenWork
+# --installed 在框架仓库根目录运行；<工作区> 为已安装 SEA 的目标工作区路径（如 E:\TempOpenWork）
+python SEA/scripts/framework-version.py --installed <工作区>
 ```
 
 ## 核心原则（速记）
