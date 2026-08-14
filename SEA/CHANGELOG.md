@@ -2,6 +2,19 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 2026-08-14 — 收尾沉淀：本会话 5 条经验入记忆库
+
+按收尾协议蒸馏本会话（框架 0.2.0→0.3.3 大版本演进）经验：
+
+- **m-20260814-007**（fact/engineering）：YAML value 含 `#` 会被当注释吞掉后半，须引号包裹
+- **m-20260814-008**（strategy/engineering）：脚本独立进程无法感知会话模型，须显式 `--model`；内联判官协议免配置
+- **m-20260814-009**（strategy/engineering）：中文检索需整词+字符二元组双特征
+- **m-20260814-010**（fact/engineering）：Python 连字符文件名无法直接 import，须 importlib
+- **m-20260814-011**（strategy/experience）：L1 评估暴露"教怎么做强、教何时不做弱"，补拒绝路径提分
+
+- **验证**：validate-memory 通过（8 条目）；dedup 0 重复
+
+
 ## 0.3.3 — 2026-08-14 — 记忆检索：补齐"只写不检"短板
 
 - **`SEA/scripts/search-memory.py`**：记忆检索召回——对 memory/*.yaml 的 active 条目做关键词 + 结构索引（整词 + 字符二元组双特征，中文短语稳健），置信度 = 0.7×查询覆盖度 + 0.2×条目 confidence + 0.1×热度；支持 `--top`/`--category`/`--json`/`--all`

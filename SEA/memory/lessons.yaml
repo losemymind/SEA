@@ -24,3 +24,68 @@ entries:
     hits: 1
     last_used: 2026-08-13
     source: self-reflect
+
+  - id: m-20260814-007
+    type: fact
+    category: engineering
+    claim: "YAML 条目中 value 含 # 字符（如 claim 里写'# 注释'）会被 YAML 当注释吞掉后半内容；必须用引号包裹（'...' 或 \"...\"）才能保留完整文本"
+    evidence:
+      - "session 2026-08-14: m-20260813-004 的 claim 含'# 注释'被 YAML 吞成 55/110 字符，加引号后恢复完整"
+      - "yaml.safe_load 测试：未引号 claim 读回 55 字符，引号后 110 字符"
+    contrast: 失败侧——最初误判为 sync-workspace 的 safe_dump 截断，实际是源文件 YAML 解析吞字
+    confidence: 0.97
+    hits: 1
+    last_used: 2026-08-14
+    source: self-reflect
+
+  - id: m-20260814-008
+    type: strategy
+    category: engineering
+    claim: "脚本独立进程无法感知当前会话模型：调用 evaluate-skill/ratchet-gate 做 L1 判官时必须显式传 --model <会话模型>；内联判官协议（--emit 生成判定请求 → agent 用会话模型判定 → --apply 收集）可免 SEA_JUDGE_URL/API_KEY 配置"
+    evidence:
+      - "session 2026-08-14: ratchet-gate --collect 未传 --model 时回退 gpt-4o-mini，修复为读请求文件内记录模型后正确继承 deepseek"
+      - "AGENTS.md 评估纪律：L1 判官必须显式传 --model"
+    contrast: 失败侧——误以为脚本能自动感知会话模型，实际独立进程无法感知
+    confidence: 0.95
+    hits: 1
+    last_used: 2026-08-14
+    source: self-reflect
+
+  - id: m-20260814-009
+    type: strategy
+    category: engineering
+    claim: "中文文本检索不能只靠整词匹配（中文分词后短语易成整词导致查询词不命中）：search-memory.py 用整词 + 相邻字符二元组双特征，对中文短语稳健命中"
+    evidence:
+      - "session 2026-08-14: 查询'自进化'整词不命中 claim 里'的至高目标是自进化'，加字符 2-gram 后正确命中"
+      - "search-memory.py 检索'自进化' 0.453 / '复制 技能 同步' 0.667"
+    contrast: 失败侧——只按标点分词整词匹配，中文短语查询返回无结果
+    confidence: 0.92
+    hits: 1
+    last_used: 2026-08-14
+    source: self-reflect
+
+  - id: m-20260814-010
+    type: fact
+    category: engineering
+    claim: "Python 文件名含连字符（如 evaluate-skill.py、search-memory.py）无法直接 import 为模块；跨脚本复用需 importlib.spec_from_file_location 按路径加载"
+    evidence:
+      - "session 2026-08-14: search-topology/report-metrics 复用 evaluate-skill 时 ModuleNotFoundError，改 importlib 后通过"
+      - "两次同类错误（report-metrics、search-topology）"
+    contrast: 失败侧——以为同目录脚本可普通 import，实际连字符文件名非法
+    confidence: 0.95
+    hits: 2
+    last_used: 2026-08-14
+    source: self-reflect
+
+  - id: m-20260814-011
+    type: strategy
+    category: experience
+    claim: "L1 主动评估能暴露技能'教怎么做强、教何时不做弱'的短板：failure/boundary 用例低分 → 补显式拒绝路径（不生成/不沉淀/门槛门）可显著提升真实评估分"
+    evidence:
+      - "session 2026-08-14: SEA评估 发现三技能 failure/boundary 用例 0.55-0.60 分，补拒绝小节后全部 +0.175"
+      - "agent-craft 0.725→0.900 / task-retrospective 0.725→0.900 / tool-craft 0.700→0.875"
+    contrast: 失败侧——只补 success 用例的覆盖，不补拒绝路径，failure 用例持续低分
+    confidence: 0.93
+    hits: 1
+    last_used: 2026-08-14
+    source: self-reflect
