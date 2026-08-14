@@ -43,6 +43,7 @@
    python SEA/scripts/verify-versions.py
    python SEA/scripts/scan-secrets.py          # PII/secret 扫描
    python SEA/scripts/audit-skill.py           # 技能供应链审计
+   python SEA/scripts/search-memory.py --all   # 记忆检索召回
    python SEA/scripts/report-metrics.py        # 进化指标仪表盘
    # 技能在全局已过质量门；工作区无需跑 validate-skill（技能演进注册表留在框架仓库）
    ```
@@ -84,6 +85,7 @@
    python SEA/scripts/verify-versions.py
    python SEA/scripts/scan-secrets.py
    python SEA/scripts/audit-skill.py
+   python SEA/scripts/search-memory.py --all
    python SEA/scripts/evaluate-skill.py --skills-dir .opencode/skills
    python SEA/scripts/ratchet-gate.py --skills-dir .opencode/skills
    python SEA/scripts/validate-skill.py --skills-dir .opencode/skills

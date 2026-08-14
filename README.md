@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.3.2`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.3.3`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -20,7 +20,7 @@
 | `SEA/memory/` | 长期记忆库（lessons / preferences / verified_facts / NOTES） |
 | `SEA/agents/_improvements/` | 定义改进注册表 + 棘轮基线（P3） |
 | `SEA/templates/` | 记忆条目 schema、子 agent 定义模板、技能模板、技能评测集 schema、agent 改进工作流、事实核实 schema |
-| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill L1 内联判官）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆衰减（memory-decay）、指标仪表盘（report-metrics）、工具信号采集（collect-tool-signals）、工作区同步（sync-workspace）、棘轮门（ratchet-gate） |
+| `SEA/scripts/` | 记忆/技能/改进/版本校验脚本（Python，零额外依赖除 PyYAML）+ 评测（evaluate-skill L1 内联判官）、审计（audit-skill）、secret 扫描（scan-secrets）、记忆检索（search-memory）、记忆衰减（memory-decay）、指标仪表盘（report-metrics）、工具信号采集（collect-tool-signals）、工作区同步（sync-workspace）、棘轮门（ratchet-gate） |
 | `SEA/CHANGELOG.md` | 进化留痕 |
 | `SEA/EVOLUTION.md` | 自进化整体流程图（权威总览：五步闭环/各层路径/治理/脚本索引/版本记录） |
 | `INSTALL.md` | 安装指南（两种方式 + 路径询问机制 + 升级流程） |
@@ -65,6 +65,10 @@ python SEA/scripts/scan-secrets.py
 # 记忆衰减检测（久未使用+低命中 → 建议 deprecated；--mark 实际写入）
 python SEA/scripts/memory-decay.py
 python SEA/scripts/memory-decay.py --mark
+
+# 记忆检索召回（需要经验时优先检索，返回相关条目+置信度）
+python SEA/scripts/search-memory.py "复制 同步"
+python SEA/scripts/search-memory.py "YAML 注释" --category engineering --json
 
 # 进化指标仪表盘（记忆/技能/改进/演进健康度）
 python SEA/scripts/report-metrics.py --skills-dir .opencode/skills

@@ -40,6 +40,7 @@
 - `python SEA/scripts/scan-secrets.py` — 记忆/技能入库前 PII/secret 扫描（检出即拦截）
 - `python SEA/scripts/audit-skill.py` — 技能供应链审计（敏感路径/危险命令/远程脚本/污染）
 - `python SEA/scripts/memory-decay.py` — 记忆衰减检测（久未使用+低命中 → 建议 deprecated）
+- `python SEA/scripts/search-memory.py` — 记忆检索召回（关键词+结构索引，返回相关条目+置信度；需要经验时检索优先于读文件）
 - `python SEA/scripts/evaluate-skill.py` — 技能独立评测（L0 启发式 / L1 LLM 判官真实评估，`--split heldout` 只评留出集；内联判官协议 `--emit`/`--apply` 免 URL/Key 配置）
 - `python SEA/scripts/ratchet-gate.py` — 棘轮变更门（pending 候选 → L1 真实评估，通过线 0.7；`--active` 主动评估全技能不设预算上限）
 - `python SEA/scripts/report-metrics.py` — 进化指标仪表盘（记忆/技能/改进/演进健康度）
@@ -65,6 +66,7 @@
 - 每条必须有：`claim`（可验证断言）、`evidence`（会话/命令/结果）、`source`
 - 用户纠正（`user-correct`）优先于自反思（`self-reflect`）
 - 冲突条目按"时间新 + 证据强"胜出；旧条目标记 `deprecated` 而非删除
+- **检索优先**：需要历史经验时先跑 `python SEA/scripts/search-memory.py "<关键词>"` 召回，而非直接读 yaml 文件
 
 ## 分级权限
 

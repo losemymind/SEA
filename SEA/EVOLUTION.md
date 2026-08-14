@@ -2,7 +2,7 @@
 
 > 本文件是框架自进化机制的**权威总览**。任何机制/脚本/流程变更必须同步更新本文件，保持与代码一致。
 
-当前版本：`0.3.2`（见 `VERSION`）
+当前版本：`0.3.3`（见 `VERSION`）
 
 ## 总览流程图
 
@@ -60,6 +60,7 @@
 │  经验 → Distill → 记忆条目(m-xxx)                      │
 │  → validate-memory (schema) → dedup-check (去重)       │
 │  → scan-secrets (PII 门)                              │
+│  → search-memory (检索召回，需要经验时优先)           │
 │  → memory-decay (久未用→deprecated 遗忘)              │
 └───────────────────────────────────────────────────────┘
 
@@ -114,6 +115,7 @@
 | validate-memory.py | 记忆 | schema 校验 |
 | dedup-check.py | 记忆 | 近重复检测 |
 | memory-decay.py | 记忆 | 衰减/遗忘候选 |
+| search-memory.py | 记忆 | 检索召回（关键词+结构索引，返回条目+置信度） |
 | validate-skill.py | 技能 | frontmatter + evolutions schema |
 | evaluate-skill.py | 横切 | L0 启发式 / L1 LLM 判官真实评估（内联协议 --emit/--apply，--split/--budget/--model） |
 | ratchet-gate.py | 横切 | 棘轮变更门（pending→L1 评估，通过线 0.7）+ 主动评估（--active 全技能无上限） |
@@ -146,3 +148,4 @@
 | 0.3.0 | 2026-08-14 | 评估器真话化：L1 真实评估（verifiable/split）+ ratchet-gate 变更门 |
 | 0.3.1 | 2026-08-14 | 模型继承+主动评估：内联判官协议（免配置）、SEA评估 关键词、budget 分级 |
 | 0.3.2 | 2026-08-14 | 技能修复：agent-craft/task-retrospective/tool-craft 补拒绝路径（L1 评估驱动） |
+| 0.3.3 | 2026-08-14 | 记忆检索：search-memory.py 补齐"只写不检"短板 |
