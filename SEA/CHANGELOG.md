@@ -2,6 +2,17 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.3.7 — 2026-08-14 — task-retrospective 修复回归 + 评估纪律盲区修正
+
+用户指出的真实冲突：SKILL.md:17 要求"跳过时在 NOTES.md 记录"，与 p-003 expect "NOTES.md 无新增" 矛盾（0.3.2 修复时引入的回归；判官当时未严格核对 expect 否定断言，误评 0.90）。
+
+- **纪律先行**：AGENTS.md「评估纪律」新增「严格核对 expect」——判官须逐项核对 expect 全部断言（含否定性断言如"NOTES.md 无新增"），不得因"正文有相关小节"就给分；正文与 expect 矛盾 → 判 FAIL 走技能修复（测试是评估基准）
+- **技能修复**：`task-retrospective/SKILL.md:17` 改为"跳过时不写入任何文件（含 NOTES.md），保持记忆库与 NOTES 干净"——技能贴合测试，p-003 不改
+- **流程**：P2 FIX 生命周期（evo-task-retrospective-fix-2，parent 指向 fix-1）——登记 → L1 严格核对评估 → HITL 批准 → solidify
+- **分数**：score_before 0.90（误评基线）→ score_after 0.925（p-001=0.90, p-003=0.95，两断言均满足）；棘轮通过
+- **版本**：0.3.6 → 0.3.7（补丁，行为修正 + 纪律增强）
+
+
 ## 0.3.6 — 2026-08-14 — agent-definition 模板补 permission 字段
 
 - **模板**：`SEA/templates/agent-definition.md` frontmatter 新增 `permission`（read/grep/glob/bash allow 默认），生成子 Agent 时按职责最小化调整
