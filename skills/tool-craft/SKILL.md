@@ -10,6 +10,13 @@ description: 工具修复与工具资产生命周期管理。当 SEA/tools/_regi
 - MCP/自定义工具损坏、缺失、行为异常，需要登记与修复
 - 新工具接入，需要登记到工具注册表
 
+## 拒绝修复（门槛门）
+**未达阈值不修复**（避免噪音修复），继续采集信号：
+- 某工具 pending 信号 < 3 条（`tool-fix-candidates.py` 判定为 degraded 而非 broken）
+- 只有单次偶发失败，无可归因模式
+- 修复前先确认阈值：`python SEA/scripts/tool-fix-candidates.py` 查看聚合状态，达 broken 才 `--promote`
+- 说明不修理由（信号不足），提示继续采集而非动手改 MCP 配置
+
 ## 流程（严格按序）
 
 ### 1. 聚合信号

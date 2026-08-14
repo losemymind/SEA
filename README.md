@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.3.1`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.3.2`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
