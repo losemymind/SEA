@@ -2,6 +2,19 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.3.0 — 2026-08-14 — 评估器真话化（L1 真实评估 + 棘轮变更门）
+
+补齐最大短板：棘轮分数从"启发式覆盖度"升级为"真实执行/判官评估"。
+
+- **schema**：`SEA/templates/test-prompts.json` 用例新增 `verifiable`（可真实判定 pass/fail）与 `split`（train|heldout，棘轮计分只用 heldout 防过拟合）
+- **评估器**：`evaluate-skill.py` 升级——`--mode judge` 只评 verifiable 用例、`--split heldout` 过滤、`--model` 支持直接用当前任务模型（优先于 `SEA_JUDGE_MODEL`）；输出带 `eval_source: l1|l0` 标记；无 JUDGE 配置回退启发式
+- **变更门**：`SEA/scripts/ratchet-gate.py`（选项 B 落地）——检测 evolutions/improvements 的 pending 候选才触发 L1 真实评估，通过线 0.7，无候选不评估（token 零开销）；定义改进维持 HITL 人工评估
+- **校验**：`validate-skill.py` 增加 verifiable/split 字段校验
+- **用例**：3 个技能 test-prompts 补 verifiable/split 标记（各 ≥2 heldout 真实计分用例）
+- **验证**：heldout 过滤正确（各剩 2 用例）；ratchet-gate 无候选不触发、有候选触发并裁决（无配置时 l0 回退保守判 FAIL）
+- **版本**：0.2.3 → 0.3.0（次版本：新增评估机制，向后兼容——旧 test-prompts 缺失字段按 false/train 处理）
+
+
 ## 0.2.3 — 2026-08-14 — EVOLUTION.md 整体流程图文档
 
 - **新增** `SEA/EVOLUTION.md`：自进化机制权威总览（总览流程图 + 各层演化路径 + 治理横切原则 + 脚本索引 + 版本演化记录）

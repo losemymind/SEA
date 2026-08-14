@@ -1,5 +1,5 @@
 {
-  "_doc": "技能评测集 schema（authoritative）。每个技能可携带 test-prompts.json，作为该技能效果评估的测试提示集。用途：棘轮对比 score_before / score_after；进化时判断改动是否变好。顶层字段：schema_version(整数), skill(kebab-case), description(说明), prompts(数组，每个用例含 id, task, expect, category[success|failure|boundary], min_score[可选 0.0~1.0])。",
+  "_doc": "技能评测集 schema（authoritative）。每个技能可携带 test-prompts.json，作为该技能效果评估的测试提示集。用途：棘轮对比 score_before / score_after；进化时判断改动是否变好。顶层字段：schema_version(整数), skill(kebab-case), description(说明), prompts(数组)。每个用例字段：id, task, expect, category[success|failure|boundary], verifiable(布尔，默认 false：该用例能否真实判定 pass/fail；true 则参与 L1 真实评估), split[train|heldout，默认 train：进化的用例与评测的用例分离，棘轮计分只用 heldout], min_score[可选 0.0~1.0]。",
   "schema_version": 1,
   "skill": "example-skill",
   "description": "示例评测集",
@@ -9,6 +9,8 @@
       "task": "描述一个会触发该技能的任务",
       "expect": "期望的技能执行结果",
       "category": "success",
+      "verifiable": true,
+      "split": "heldout",
       "min_score": 0.7
     }
   ]

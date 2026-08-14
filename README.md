@@ -2,7 +2,7 @@
 
 可持续进化 Agent（Self-Evolution Agent）的构建研究 + 可落地基础设施。
 
-**当前版本**：`0.2.2`（见 `VERSION`；升级流程见 `INSTALL.md`）
+**当前版本**：`0.3.0`（见 `VERSION`；升级流程见 `INSTALL.md`）
 
 ## 这是什么
 
@@ -46,8 +46,12 @@ python SEA/scripts/dedup-check.py 0.5
 # 校验技能 frontmatter 与候选演进注册表（--skills-dir 指向技能库根目录）
 python SEA/scripts/validate-skill.py --skills-dir .opencode/skills
 
-# 技能独立评测（棘轮 score_before/score_after 用）
+# 技能独立评测（L0 启发式 / L1 LLM 判官真实评估，--split heldout 只评留出集）
 python SEA/scripts/evaluate-skill.py --skills-dir .opencode/skills
+python SEA/scripts/evaluate-skill.py --mode judge --skill tool-craft --split heldout
+
+# 棘轮变更门（有 pending 候选时才触发 L1 真实评估，通过线 0.7）
+python SEA/scripts/ratchet-gate.py --skills-dir .opencode/skills
 
 # 技能供应链审计（入库前必查：敏感路径/危险命令/远程脚本/污染）
 python SEA/scripts/audit-skill.py --skills-dir .opencode/skills

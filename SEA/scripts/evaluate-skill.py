@@ -11,22 +11,23 @@
   2. 拓扑评测（--mode topology, §10.1）: 对 SEA/agents/topology.json 中的每个
      agent 拓扑候选打分，分量 = 结构完整性(0.4) + agent 定义覆盖(0.3) +
      调用边一致性(0.3)。
-  3. LLM-as-Judge（--mode judge, §8.2）: 对单个技能的 test-prompts 调用外部
-     LLM 判官打分（Agent-as-a-Judge 思路，缓解生成器自评偏差）。判官端点经
+  3. LLM-as-Judge（--mode judge, §8.2）: 对单个技能的 verifiable test-prompts 调用
+     外部 LLM 判官打分（Agent-as-a-Judge 思路，缓解生成器自评偏差）。判官端点经
      环境变量配置：SEA_JUDGE_URL（OpenAI 兼容 base）/ SEA_JUDGE_API_KEY /
-     SEA_JUDGE_MODEL；未配置时回退确定性打分并提示。
+     SEA_JUDGE_MODEL；--model 可覆盖（直接用当前任务模型）；未配置时回退确定性
+     打分（eval_source=l0）。L1 真实评估（eval_source=l1）只评 verifiable=true 用例。
 
 用途：在技能/拓扑创建或演进前后各跑一次，得到 score_before / score_after，
-供 P2/P3 生命周期与棘轮使用。
+供 P2/P3 生命周期与棘轮使用。--split heldout 只评留出集（棘轮计分用，防过拟合）。
 
 用法:
-    python SEA/scripts/evaluate-skill.py [--skills-dir <技能库根目录>] [--json]
+    python SEA/scripts/evaluate-skill.py [--skills-dir <技能库根目录>] [--json] [--split heldout]
     python SEA/scripts/evaluate-skill.py --mode topology [--json]
-    python SEA/scripts/evaluate-skill.py --mode judge --skill <技能名> [--json]
+    python SEA/scripts/evaluate-skill.py --mode judge --skill <技能名> [--split heldout] [--model <模型>]
 
 输出:
-    无 --json: 逐技能/拓扑打印每个用例得分与总分
-    --json:    输出 JSON 供脚本消费（含 name、score、per_prompt/components）
+    无 --json: 逐技能/拓扑打印每个用例得分与总分（含 eval_source 标记）
+    --json:    输出 JSON 供脚本消费（含 name、score、per_prompt/components、eval_source）
 
 退出码: 0 正常（即使分数低也正常，分数仅供对比）；1 参数/IO 错误。
 零第三方依赖（仅标准库）。
@@ -74,6 +75,24 @@ def coverage(haystack: str, features):
         return 0.0
     hit = sum(1 for f in features if f in text)
     return hit / len(features)
+
+
+def filter_prompts(prompts, split=None, verifiable_only=False):
+    """按 split 与 verifiable 过滤用例。
+
+    split: None=全部 | train | heldout（棘轮计分只用 heldout，防过拟合）
+    verifiable_only: True 时只保留 verifiable=true 的用例（L1 真实评估对象）
+    """
+    out = []
+    for p in prompts:
+        if not isinstance(p, dict):
+            continue
+        if split and p.get("split", "train") != split:
+            continue
+        if verifiable_only and not p.get("verifiable"):
+            continue
+        out.append(p)
+    return out
 
 
 def check_skill(skill_dir: Path):
@@ -220,13 +239,17 @@ def run_topology_mode(args, templates_dir):
 
 
 def run_judge_mode(args, skills_dir):
-    """LLM-as-Judge（§8.2）：对指定技能的 test-prompts 调外部 LLM 判官打分。
+    """LLM-as-Judge（§8.2）：对指定技能的 verifiable test-prompts 调外部 LLM 判官打分。
 
     判官配置（环境变量）：
       SEA_JUDGE_URL       OpenAI 兼容端点（如 https://api.openai.com/v1）
       SEA_JUDGE_API_KEY   API 密钥
-      SEA_JUDGE_MODEL     模型名（默认 gpt-4o-mini）
-    未配置 → 回退确定性打分并提示。
+      SEA_JUDGE_MODEL     模型名（默认 gpt-4o-mini；--model 优先，可直接用当前任务模型）
+    未配置 → 回退确定性打分（eval_source=l0）并提示。
+
+    L1 真实评估（eval_source=l1）：
+      - 只评 verifiable=true 的用例（可真实判定 pass/fail 的对象）
+      - --split heldout 只评留出集（棘轮计分用）
     """
     import os
     import urllib.request
@@ -246,21 +269,26 @@ def run_judge_mode(args, skills_dir):
     skill_text = md.read_text(encoding="utf-8")
     data = json.loads(tp.read_text(encoding="utf-8"))
     prompts = data.get("prompts", [])
+    verifiable = filter_prompts(prompts, split=args.split, verifiable_only=True)
+    if not verifiable:
+        print(f"[WARN] {skill} 没有 verifiable 用例（--split {args.split}），无可评对象",
+              file=sys.stderr)
+        return 0
 
     url = os.environ.get("SEA_JUDGE_URL")
     api_key = os.environ.get("SEA_JUDGE_API_KEY")
-    model = os.environ.get("SEA_JUDGE_MODEL", "gpt-4o-mini")
+    model = args.model or os.environ.get("SEA_JUDGE_MODEL", "gpt-4o-mini")
     if not url or not api_key:
-        # 回退确定性打分
+        # 回退确定性打分（L0）
         name, _, scores = check_skill(skill_dir)
         total = round(sum(scores) / len(scores), 3) if scores else 0.0
         print(f"[WARN] 未配置 SEA_JUDGE_URL/SEA_JUDGE_API_KEY，回退确定性打分 "
-              f"(score={total})", file=sys.stderr)
+              f"(score={total}, eval_source=l0)", file=sys.stderr)
         print(f"{name}: {total}  (fallback heuristic)")
         return 0
 
     results = []
-    for i, p in enumerate(prompts, 1):
+    for i, p in enumerate(verifiable, 1):
         judge_prompt = (
             "你是技能评估判官。判断技能是否满足用例的预期。\n"
             f"== 技能 SKILL.md ==\n{skill_text[:3000]}\n\n"
@@ -294,11 +322,14 @@ def run_judge_mode(args, skills_dir):
     if args.json:
         print(json.dumps({"schema_version": 1, "mode": "judge",
                           "skill": skill, "judge_model": model,
+                          "eval_source": "l1", "split": args.split,
+                          "verifiable_cases": len(verifiable),
                           "score": total, "per_prompt": results},
                          ensure_ascii=False, indent=2))
     else:
         per = " ".join(f"p{i}={s:.2f}" for i, s in enumerate(results, 1))
-        print(f"{skill}: {total}  (judge={model}: {per})")
+        print(f"{skill}: {total}  (judge={model} split={args.split} "
+              f"l1: {per})")
     return 0
 
 
@@ -311,6 +342,10 @@ def main():
                     help="评测对象：技能（默认）、agent 拓扑（§10.1）或 LLM-as-Judge（§8.2）")
     ap.add_argument("--skill", type=str, default=None,
                     help="--mode judge 时指定技能名")
+    ap.add_argument("--split", choices=["train", "heldout"], default=None,
+                    help="只评指定 split 的用例（棘轮计分固定用 heldout）")
+    ap.add_argument("--model", type=str, default=None,
+                    help="LLM 判官模型（优先于 SEA_JUDGE_MODEL；可直接传当前任务模型名）")
     args = ap.parse_args()
 
     if args.mode == "topology":
@@ -335,25 +370,38 @@ def main():
             continue
         if not prompts:
             continue  # 无评测集的技能不参与打分
+        # L0 启发式打分：--split 时按 split 过滤，eval_source=l0
+        if args.split:
+            kept = filter_prompts(prompts, split=args.split)
+            kept_ids = {p.get("id") for p in kept}
+            scores = [s for i, s in enumerate(scores)
+                      if prompts[i].get("id") in kept_ids]
         total = round(sum(scores) / len(scores), 3) if scores else 0.0
         results.append({
             "skill": name,
             "score": total,
-            "prompts": len(prompts),
+            "prompts": len(scores),
             "per_prompt": scores,
+            "eval_source": "l0",
         })
 
     if args.json:
-        print(json.dumps({"schema_version": 1, "results": results},
+        print(json.dumps({"schema_version": 1, "eval_source": "l0",
+                          "split": args.split, "results": results},
                          ensure_ascii=False, indent=2))
         return 0
 
     for r in results:
         per = " ".join(f"p{i}={s:.2f}" for i, s in enumerate(r["per_prompt"], 1))
-        print(f"{r['skill']}: {r['score']:.3f}  ({r['prompts']} 用例: {per})")
+        print(f"{r['skill']}: {r['score']:.3f}  ({r['prompts']} 用例: {per}) "
+              f"[l0{split_label(args.split)}]")
     if not results:
         print("没有技能带 test-prompts.json，无评测对象。")
     return 0
+
+
+def split_label(split):
+    return f"/{split}" if split else ""
 
 
 if __name__ == "__main__":

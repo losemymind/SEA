@@ -86,6 +86,11 @@ def check_test_prompts(subdir, errors):
                 errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: 缺少 {f}")
         if p.get("category") not in PROMPT_CATEGORIES:
             errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: category 非法（应为 {sorted(PROMPT_CATEGORIES)}）")
+        # 新字段校验：verifiable(布尔) / split(train|heldout)
+        if "verifiable" in p and not isinstance(p.get("verifiable"), bool):
+            errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: verifiable 应为布尔")
+        if "split" in p and p.get("split") not in ("train", "heldout"):
+            errors.append(f"{subdir.name}/test-prompts.json 用例#{i}: split 非法（应为 train|heldout）")
 
 
 def check_skills(skills_dir, errors):

@@ -2,7 +2,7 @@
 
 > 本文件是框架自进化机制的**权威总览**。任何机制/脚本/流程变更必须同步更新本文件，保持与代码一致。
 
-当前版本：`0.2.2`（见 `VERSION`）
+当前版本：`0.3.0`（见 `VERSION`）
 
 ## 总览流程图
 
@@ -38,17 +38,20 @@
                     ▼                    ▼          ▼                    ▼
              ┌──────────────┐   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
              │ HITL 审批     │   │ 棘轮（ratchet）│ │ 版本递增      │ │ CHANGELOG+git │
-             │ 记忆自动/技能 │   │ score_after >│ │ 0.2.2 → 升级 │ │ 可回滚留痕    │
-             │ 定义/工具人工 │   │ best 才保留  │ │ sync 工作区   │ │              │
+             │ 记忆自动/技能 │   │ L1 真实分≥0.7 │ │ 0.3.0 → 升级 │ │ 可回滚留痕    │
+             │ 定义/工具人工 │   │ 才保留，否则回滚│ │ sync 工作区   │ │              │
              └──────────────┘   └──────────────┘ └──────────────┘ └──────────────┘
-                                             │
-                                             ▼
-                             ┌──────────────────────────────────┐
-                             │         群体智能 (P4/§10.4)       │
-                             │ sync-workspace（工作区↔仓库）     │
-                             │ hub-sync（远程 git Hub 共享）     │
-                             └──────────────────────────────────┘
+                                              │
+                                              ▼
+                              ┌──────────────────────────────────┐
+                              │         群体智能 (P4/§10.4)       │
+                              │ sync-workspace（工作区↔仓库）     │
+                              │ hub-sync（远程 git Hub 共享）     │
+                              └──────────────────────────────────┘
 ```
+
+> **评估触发（选项 B 变更门）**：棘轮只在存在 pending 候选时触发 L1 真实评估
+> （`ratchet-gate.py` → `evaluate-skill --mode judge --split heldout`）；无候选不评估。
 
 ## 各层演化路径细分
 
@@ -62,15 +65,15 @@
 
 ┌─ 技能层 ──────────────────────────────────────────────┐
 │  信号 → evolutions.json (pending)                     │
-│  → evaluate-skill (score_before) → audit-skill (供应链)│
-│  → HITL 审批 → solidify (回 SKILL.md) → 棘轮           │
+│  → ratchet-gate (变更门触发 L1 真实评估，通过线 0.7)  │
+│  → audit-skill (供应链) → HITL 审批 → solidify → 棘轮  │
 │  tool-craft / agent-craft / workflow-craft 皆此路径    │
 └───────────────────────────────────────────────────────┘
 
 ┌─ 定义层 ──────────────────────────────────────────────┐
 │  用户纠正 → improvements.json (pending)                │
 │  → 最小 diff → validate-agent-improvements            │
-│  → HITL → 棘轮 (score_after>best 保留/回滚)           │
+│  → HITL → 棘轮 (L1 真实分≥0.7 保留/回滚)              │
 └───────────────────────────────────────────────────────┘
 
 ┌─ 拓扑层 (§10.1) ─────────────────────────────────────┐
@@ -94,9 +97,11 @@
 
 - **评估器 > 生成器**：一切持久化改动先过 `evaluate-*`/`validate-*`
 - **棘轮**：`score_after > best_score` 才保留，基线单调不降（improvements.json + baselines.json + evolutions.json + topology.json 各自持有）
+- **评估触发 = 变更门（选项 B）**：只有 evolutions/improvements 存在 pending 候选需要裁决时才触发 L1 真实评估（`ratchet-gate.py`）；无候选不评估，token 与价值对齐
+- **L1 真实评估**：对 `verifiable: true` 的 heldout 用例调 LLM 判官打分（`evaluate-skill.py --mode judge --split heldout`），通过线 0.7；无 JUDGE 配置回退启发式（l0）并保守回滚
 - **可回滚**：全部产物 git 化，CHANGELOG 留痕
 - **按最轻层**：记忆 → 技能 → 代码 → 参数（当前未到参数层）
-- **HITL 分权**：记忆自动、技能/定义/工具人工审批
+- **HITL 分权**：记忆自动、技能/定义/工具人工审批（评估可信后重大变更才介入）
 - **元规则（硬规则第 0 条）**：自进化是至高目标，阻碍自进化的规则/方案/方法可变更
 
 ## 脚本索引
@@ -107,7 +112,8 @@
 | dedup-check.py | 记忆 | 近重复检测 |
 | memory-decay.py | 记忆 | 衰减/遗忘候选 |
 | validate-skill.py | 技能 | frontmatter + evolutions schema |
-| evaluate-skill.py | 横切 | 确定性打分 / 拓扑 / LLM 判官 |
+| evaluate-skill.py | 横切 | 确定性打分 / 拓扑 / LLM 判官（L1 真实评估，--split/--model） |
+| ratchet-gate.py | 横切 | 棘轮变更门：pending 候选 → L1 评估 → 裁决（通过线 0.7） |
 | audit-skill.py | 横切 | 供应链审计 |
 | scan-secrets.py | 横切 | PII/secret 扫描 |
 | validate-agent-improvements.py | 定义 | 改进注册表 + 棘轮一致性 |
@@ -133,3 +139,5 @@
 | 0.2.0 | 2026-08-14 | 工具层/群体/拓扑基础设施（§10.1/10.3/10.4） |
 | 0.2.1 | 2026-08-14 | 拓扑搜索闭环（search/validate-topology） |
 | 0.2.2 | 2026-08-14 | 工具修复闭环/工作流实例化/LLM 判官/远程 Hub |
+| 0.2.3 | 2026-08-14 | EVOLUTION.md 整体流程图文档 |
+| 0.3.0 | 2026-08-14 | 评估器真话化：L1 真实评估（verifiable/split）+ ratchet-gate 变更门 |

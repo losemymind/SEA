@@ -40,7 +40,8 @@
 - `python SEA/scripts/scan-secrets.py` — 记忆/技能入库前 PII/secret 扫描（检出即拦截）
 - `python SEA/scripts/audit-skill.py` — 技能供应链审计（敏感路径/危险命令/远程脚本/污染）
 - `python SEA/scripts/memory-decay.py` — 记忆衰减检测（久未使用+低命中 → 建议 deprecated）
-- `python SEA/scripts/evaluate-skill.py` — 技能独立评测（棘轮 score_before/score_after 用）
+- `python SEA/scripts/evaluate-skill.py` — 技能独立评测（L0 启发式 / L1 LLM 判官真实评估，`--split heldout` 只评留出集）
+- `python SEA/scripts/ratchet-gate.py` — 棘轮变更门：检测 pending 候选 → 触发 L1 真实评估 → 通过线 0.7 裁决（选项 B，无候选不评估）
 - `python SEA/scripts/report-metrics.py` — 进化指标仪表盘（记忆/技能/改进/演进健康度）
 - `python SEA/scripts/collect-tool-signals.py` — 工具失败信号采集（MCP/工具调用失败 → 修复候选，§10.3）
 - `python SEA/scripts/sync-workspace.py` — 工作区经验回流/下发同步（§10.4）
@@ -76,7 +77,7 @@
 技能影响未来行为，必须过质量门与审批：
 
 1. **候选先入 `<skills-root>/_evolutions/evolutions.json`**（status=pending，未生效）
-2. **评估**（独立于生成）：结构侧 + 效果侧（在技能自带的 `test-prompts.json` 上跑）
+2. **评估**（独立于生成）：结构侧 + 效果侧（在技能自带的 `test-prompts.json` 上跑；含 `verifiable: true` 用例走 L1 真实评估，`split: heldout` 用例为棘轮计分集）
 3. **HITL 审批**：展示 diff + 分数变化（`score_before`/`score_after`）→ 人工确认
 4. **solidify**：通过才合并回 `SKILL.md`（失败类→`Troubleshooting`；用户纠正→`Examples`），状态置 solidified
 5. **棘轮**：新分数不高于 `score_before` → 移除改动，状态置 reverted；基线单调不降

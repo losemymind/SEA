@@ -8,6 +8,8 @@
       "task": "刚完成一个 UE 复制漂移的排错任务，发现只查 OnRep 是错误路径。执行任务收尾。",
       "expect": "产出 memory/lessons.yaml 中一条 type=strategy、category=experience 的条目，含 contrast 失败对比、evidence 与 source；通过 validate-memory.py。",
       "category": "success",
+      "verifiable": true,
+      "split": "heldout",
       "min_score": 0.8
     },
     {
@@ -15,6 +17,7 @@
       "task": "用户明确要求完成任务后生成单元测试。任务已做完但没测。执行任务收尾。",
       "expect": "蒸馏出一条 preference 条目（用户纠正优先，source=user-correct），而非只记经验。",
       "category": "success",
+      "verifiable": true,
       "min_score": 0.8
     },
     {
@@ -22,6 +25,8 @@
       "task": "本次任务是纯查询（回答一个文档问题），无新信息产生。执行任务收尾。",
       "expect": "不写入任何新记忆条目（避免无效沉淀）；NOTES.md 无新增。",
       "category": "boundary",
+      "verifiable": true,
+      "split": "heldout",
       "min_score": 0.6
     }
   ]

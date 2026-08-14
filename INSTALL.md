@@ -85,8 +85,18 @@
    python SEA/scripts/scan-secrets.py
    python SEA/scripts/audit-skill.py
    python SEA/scripts/evaluate-skill.py --skills-dir .opencode/skills
+   python SEA/scripts/ratchet-gate.py --skills-dir .opencode/skills
    python SEA/scripts/validate-skill.py --skills-dir .opencode/skills
    ```
+
+> **L1 真实评估配置（可选）**：棘轮变更门（ratchet-gate）在存在 pending 候选时触发
+> L1 真实评估，需要配置 LLM 判官端点：
+> ```powershell
+> $env:SEA_JUDGE_URL   = "https://api.openai.com/v1"      # OpenAI 兼容端点
+> $env:SEA_JUDGE_API_KEY = "<密钥>"
+> $env:SEA_JUDGE_MODEL  = "gpt-4o-mini"                    # 也可用 --model 传当前任务模型
+> ```
+> 未配置时回退启发式打分并保守回滚（不会破坏既有工作区）。
 
 ### 结果
 - 技能只在目标工作区生效，其他工作区不受影响
