@@ -2,6 +2,15 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.3.4 — 2026-08-14 — 修复 ratchet-gate/report-metrics 的 --skills-dir 自动探测
+
+用户指出的上游瑕疵：`ratchet-gate.py`/`report-metrics.py` 的 `--skills-dir` 帮助文本声明"自动探测"，但只 fallback 到 `ROOT.parent / "skills"`（框架仓库位置），未实现 `resolve_skills_dir`。在已安装工作区（方式二，技能在 `.opencode/skills`）下默认指向不存在的 `E:\TempOpenWork\skills`。
+
+- **修复**：两脚本补 `resolve_skills_dir`（显式参数 > `.opencode/skills` > 仓库 `skills/`），与 validate-skill/evaluate-skill/audit-skill 一致
+- **验证**：仓库根 cwd 解析到 `skills/`；工作区 cwd 解析到 `.opencode/skills`（此前 FileNotFoundError）；显式传参不受影响
+- **版本**：0.3.3 → 0.3.4（补丁，行为修正）
+
+
 ## 2026-08-14 — 收尾沉淀：本会话 5 条经验入记忆库
 
 按收尾协议蒸馏本会话（框架 0.2.0→0.3.3 大版本演进）经验：

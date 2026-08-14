@@ -60,6 +60,20 @@ def load_json(path):
         return {}
 
 
+def resolve_skills_dir(arg):
+    """自动探测技能库根目录：显式参数 > .opencode/skills（工作区）> 仓库根 skills/。"""
+    if arg:
+        return Path(arg)
+    candidates = [
+        Path.cwd() / ".opencode" / "skills",
+        ROOT.parent / "skills",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return candidates[-1]
+
+
 def pending_skill_candidates():
     """收集有 pending 候选的技能演进（evolutions.json）。"""
     data = load_json(EVOLUTIONS_SKILL)
@@ -141,8 +155,8 @@ def collect_scores(request_path, skills_dir, model, split):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--skills-dir", type=str, default=str(ROOT.parent / "skills"),
-                    help="技能库根目录")
+    ap.add_argument("--skills-dir", type=str, default=None,
+                    help="技能库根目录（默认自动探测 .opencode/skills → 仓库根 skills/）")
     ap.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD,
                     help=f"L1 真实分数通过线（默认 {DEFAULT_THRESHOLD}）")
     ap.add_argument("--budget", type=int, default=None,
@@ -160,7 +174,7 @@ def main():
                     help="只列出待裁决候选，不评估")
     args = ap.parse_args()
 
-    skills_dir = Path(args.skills_dir)
+    skills_dir = resolve_skills_dir(args.skills_dir)
     model = args.model
     split = "heldout"
 

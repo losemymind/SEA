@@ -45,6 +45,20 @@ def load_yaml(path):
         return safe_load(f)
 
 
+def resolve_skills_dir(arg):
+    """自动探测技能库根目录：显式参数 > .opencode/skills（工作区）> 仓库根 skills/。"""
+    if arg:
+        return Path(arg)
+    candidates = [
+        Path.cwd() / ".opencode" / "skills",
+        ROOT.parent / "skills",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return candidates[-1]
+
+
 def memory_metrics():
     entries = []
     for p in sorted(MEMORY_DIR.glob("*.yaml")):
@@ -117,7 +131,7 @@ def main():
                     help="技能库根目录（默认自动探测 .opencode/skills → 仓库根 skills/）")
     args = ap.parse_args()
 
-    skills_dir = Path(args.skills_dir) if args.skills_dir else (ROOT.parent / "skills")
+    skills_dir = resolve_skills_dir(args.skills_dir)
 
     mem = memory_metrics()
     sk = skill_metrics(skills_dir)
