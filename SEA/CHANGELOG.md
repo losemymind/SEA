@@ -2,6 +2,14 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.1.2 — 2026-08-14 — AGENTS.md 硬规则新增元规则第 0 条
+
+- **定义**：硬规则顶部新增第 0 条元规则「自进化是至高目标」——任何阻碍自进化的规则/方案/方法可变更，不得以既有纪律为由阻止框架改进（来源：用户纠正 m-20260814-006）
+- **流程**：P3 定义自改进（im-20260814-002，DERIVED）：登记 pending → 评估 → 最小 diff → HITL 批准 → approved
+- **棘轮**：baselines.json 记录 AGENTS.md 首次基线 0.85
+- **版本**：0.1.1 → 0.1.2（补丁，非破坏性）
+- **验证**：validate-agent-improvements / validate-memory 通过
+
 ## 0.1.1 — 2026-08-14 — agent-definition 模板补 model 字段说明
 
 - **模板**：`SEA/templates/agent-definition.md` frontmatter 补充可选 `model` 字段注释——不填则 subagent 默认使用调用它的主 Agent 的模型（primary agent 用全局配置模型）

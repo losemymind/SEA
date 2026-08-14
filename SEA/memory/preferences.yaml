@@ -2,4 +2,15 @@
 
 # 按 templates/lesson-schema.yaml 的 schema 编写。
 
-entries: []
+entries:
+  - id: m-20260814-006
+    type: preference
+    category: preference
+    claim: SEA 的至高目标是自进化；任何阻碍自进化的规则、方案或方法都是可变更的，不得以"既有纪律"为由阻止正当的框架改进
+    evidence:
+      - "session 2026-08-14: 用户明示'所有阻碍自进化的规则和方案方法都是可以变更的'"
+    contrast: 失败侧——把硬规则当成不可动摇的教条，会阻碍框架自身的进化
+    confidence: 1.0
+    hits: 1
+    last_used: 2026-08-14
+    source: user-correct

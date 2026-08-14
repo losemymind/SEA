@@ -1,4 +1,24 @@
 {
   "_doc": "Agent 定义候选改进注册表 schema。每次对定义文件的改进先登记为 pending，再走评估→审批→棘轮。字段：id(im-YYYYMMDD-NNN), target(目标文件路径), kind[FIX|DERIVED|REWRITE], signal{type[user-correct|metric|failure|manual], detail}, patch(diff 描述), status[pending|approved|rejected|reverted], created, score_before(可选), score_after(可选), evidence[]",
-  "improvements": []
+  "improvements": [
+    {
+      "id": "im-20260814-002",
+      "target": "AGENTS.md",
+      "kind": "DERIVED",
+      "signal": {
+        "type": "user-correct",
+        "detail": "用户明示：SEA 追求自进化，所有阻碍自进化的规则/方案/方法都可变更（已存记忆 m-20260814-006）"
+      },
+      "patch": "硬规则顶部新增元规则第 0 条：自进化是至高目标，阻碍自进化的规则/方案/方法可变更，不得以既有纪律为由阻止框架改进",
+      "status": "approved",
+      "created": "2026-08-14",
+      "score_before": null,
+      "score_after": 0.85,
+      "evidence": [
+        "HITL 批准 2026-08-14",
+        "结构校验通过，一处最小 diff",
+        "与记忆条目 m-20260814-006 一致（用户纠正）"
+      ]
+    }
+  ]
 }
