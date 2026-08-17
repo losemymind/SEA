@@ -9,7 +9,7 @@
         "type": "user-correct",
         "detail": "用户明示：AGENTS.md 需新增两条规则——先制定详细的完整开发计划才能开始实施；充分利用 subagent 能力"
       },
-      "patch": "硬规则新增第 8 条（先计划后实施：目标/步骤/验证方式/预期产物，无计划不实施）与第 9 条（充分利用 subagent：Task/explore/general 多路并行，避免主上下文膨胀）",
+      "patch": "硬规则新增第 8 条（先计划后实施：目标/步骤/验证方式/预期产物，无计划不实施）与第 9 条（充分利用 subagent：Task 派发，按任务性质选不同角色 explore/general/专用 agent，多路并行，避免主上下文膨胀；存在依赖的步骤按序推进，不盲目并行）",
       "status": "approved",
       "created": "2026-08-17",
       "score_before": 0.85,
