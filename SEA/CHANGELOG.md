@@ -2,6 +2,15 @@
 
 每次记忆/技能/定义变更在此记录，与 git 提交对应。
 
+## 0.3.8 — 2026-08-17 — 版本术语统一：顶层 VERSION → 仓库 VERSION
+
+用户纠正：P0 约束描述中"顶层 VERSION"命名含混，改为"仓库 VERSION"（指框架仓库根的 `VERSION`，与 `SEA/VERSION` 相对）。
+
+- **术语**：`framework-version.py` 描述（docstring/help/错误信息）与 `INSTALL.md` 升级流程中"顶层"统一为"仓库"；变量 `top_ver` → `repo_ver`
+- **验证**：`python SEA/scripts/framework-version.py --check` 通过（两处一致）
+- **版本**：0.3.7 → 0.3.8（补丁，仅术语与描述变更，无行为改动）
+
+
 ## 0.3.7 — 2026-08-14 — task-retrospective 修复回归 + 评估纪律盲区修正
 
 用户指出的真实冲突：SKILL.md:17 要求"跳过时在 NOTES.md 记录"，与 p-003 expect "NOTES.md 无新增" 矛盾（0.3.2 修复时引入的回归；判官当时未严格核对 expect 否定断言，误评 0.90）。

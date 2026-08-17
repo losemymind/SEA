@@ -136,7 +136,7 @@
 
 ## 框架升级流程（P0 版本兼容性）
 
-框架使用 `VERSION` 文件管理版本（顶层与 `SEA/VERSION` 保持一致；`SEA/VERSION` 随运行时进入工作区）。升级必须遵循以下纪律：
+框架使用 `VERSION` 文件管理版本（仓库 `VERSION` 与 `SEA/VERSION` 保持一致；`SEA/VERSION` 随运行时进入工作区）。升级必须遵循以下纪律：
 
 ### 升级前检查已装工作区
 ```powershell

@@ -4,9 +4,9 @@
 用法:
     python SEA/scripts/framework-version.py                    # 打印框架版本
     python SEA/scripts/framework-version.py --installed <工作区>  # 检查工作区 SEA 版本是否过期
-    python SEA/scripts/framework-version.py --check            # 校验 SEA/VERSION 与顶层 VERSION 一致
+    python SEA/scripts/framework-version.py --check            # 校验 SEA/VERSION 与仓库 VERSION 一致
 
-退出码: 0 正常/无过期; 1 已安装工作区版本过期或 SEA/VERSION 与顶层不一致。
+退出码: 0 正常/无过期; 1 已安装工作区版本过期或 SEA/VERSION 与仓库不一致。
 零第三方依赖（仅标准库）。
 """
 
@@ -29,18 +29,18 @@ def main():
     ap.add_argument("--installed", type=str, default=None,
                     help="目标工作区路径，检查其 SEA/VERSION 是否过期")
     ap.add_argument("--check", action="store_true",
-                    help="校验 SEA/VERSION 与仓库顶层 VERSION 一致")
+                    help="校验 SEA/VERSION 与仓库 VERSION 一致")
     args = ap.parse_args()
 
     sea_ver = read_version(ROOT / "VERSION")
-    top_ver = read_version(REPO_ROOT / "VERSION")
+    repo_ver = read_version(REPO_ROOT / "VERSION")
 
     if args.check:
-        if not sea_ver or not top_ver:
-            print("[ERROR] VERSION 文件缺失（SEA/VERSION 或 顶层 VERSION）", file=sys.stderr)
+        if not sea_ver or not repo_ver:
+            print("[ERROR] VERSION 文件缺失（SEA/VERSION 或 仓库 VERSION）", file=sys.stderr)
             return 1
-        if sea_ver != top_ver:
-            print(f"[ERROR] 版本不一致: SEA/VERSION={sea_ver} 顶层 VERSION={top_ver}", file=sys.stderr)
+        if sea_ver != repo_ver:
+            print(f"[ERROR] 版本不一致: SEA/VERSION={sea_ver} 仓库 VERSION={repo_ver}", file=sys.stderr)
             return 1
         print(f"OK：版本一致 {sea_ver}")
         return 0
