@@ -2,6 +2,25 @@
   "_doc": "Agent 定义候选改进注册表 schema。每次对定义文件的改进先登记为 pending，再走评估→审批→棘轮。字段：id(im-YYYYMMDD-NNN), target(目标文件路径), kind[FIX|DERIVED|REWRITE], signal{type[user-correct|metric|failure|manual], detail}, patch(diff 描述), status[pending|approved|rejected|reverted], created, score_before(可选), score_after(可选), evidence[]",
   "improvements": [
     {
+      "id": "im-20260817-001",
+      "target": "AGENTS.md",
+      "kind": "DERIVED",
+      "signal": {
+        "type": "user-correct",
+        "detail": "用户明示：AGENTS.md 需新增两条规则——先制定详细的完整开发计划才能开始实施；充分利用 subagent 能力"
+      },
+      "patch": "硬规则新增第 8 条（先计划后实施：目标/步骤/验证方式/预期产物，无计划不实施）与第 9 条（充分利用 subagent：Task/explore/general 多路并行，避免主上下文膨胀）",
+      "status": "approved",
+      "created": "2026-08-17",
+      "score_before": 0.85,
+      "score_after": 0.9,
+      "evidence": [
+        "HITL 批准 2026-08-17（用户直接指令新增）",
+        "两处最小 diff，硬规则从 8 条增至 10 条",
+        "与现有硬规则 8「先计划后实施」语义在 AGENTS.md 中首次显式化"
+      ]
+    },
+    {
       "id": "im-20260814-002",
       "target": "AGENTS.md",
       "kind": "DERIVED",
