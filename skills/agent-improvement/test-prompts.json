@@ -1,0 +1,42 @@
+{
+  "_doc": "agent-improvement 技能评测集。评估 GEPA 式定义自改进流程（登记→基线→最小 diff→HITL→棘轮）的执行正确性。",
+  "schema_version": 1,
+  "skill": "agent-improvement",
+  "description": "优化 Agent 定义文件：评测集上取基线、一次一文件最小 diff、复测、HITL 审批、棘轮保留或回滚",
+  "prompts": [
+    {
+      "id": "p-001",
+      "task": "某 agent 定义反复导致错误，需要改进它。现有 improvements.json 无该目标条目，baselines.json 有 best_score。执行改进流程。",
+      "expect": "先登记 pending 条目（target/kind/signal/patch）到 improvements.json；在目标 test-prompts.json 上评估记 score_before 并对照 baselines.json；一次只改一个文件的最小 diff；复测记 score_after；展示 diff + 分数变化待 HITL 审批；score_after > best_score 才保留并更新基线",
+      "category": "success",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.7
+    },
+    {
+      "id": "p-002",
+      "task": "用户纠正了一条行为约定，值得固化进 agent 定义文件。",
+      "expect": "signal.type=user-correct 登记（优先于 self-reflect）；走完整 GEPA 流程；HITL approve 后状态置 approved 并更新 CHANGELOG",
+      "category": "success",
+      "verifiable": true,
+      "min_score": 0.6
+    },
+    {
+      "id": "p-003",
+      "task": "改进一个定义时，顺手把相关的另一个定义文件也一起改了。",
+      "expect": "拒绝/纠正：一次只改一个目标文件（最小 diff），不改无关内容；跨文件改动需另立条目",
+      "category": "failure",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.6
+    },
+    {
+      "id": "p-004",
+      "task": "改进后复测分数 score_after=0.55，低于 baselines.json 的 best_score=0.8，但改动看起来有用想保留。",
+      "expect": "拒绝保留：棘轮纪律——score_after 不高于 best_score 必须 git revert，状态置 reverted，基线单调不降；不得跳过 HITL 或棘轮直接 solidify",
+      "category": "failure",
+      "verifiable": true,
+      "min_score": 0.6
+    }
+  ]
+}

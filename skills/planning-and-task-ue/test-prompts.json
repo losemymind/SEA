@@ -1,0 +1,42 @@
+{
+  "_doc": "planning-and-task-ue 技能评测集。评估把游戏需求拆分为三型任务、双链依赖、垂直切片与验证证据的能力。",
+  "schema_version": 1,
+  "skill": "planning-and-task-ue",
+  "description": "把游戏项目需求/设计文档拆分为有序、可验证、可并行的小任务（code/asset/game-feel 三型 + 代码链/资产链依赖 + 垂直切片 + 四类验证证据）",
+  "prompts": [
+    {
+      "id": "p-001",
+      "task": "为一个 UE 动作游戏规划「玩家近战攻击」功能：需要角色动画、命中判定、敌人受击反馈、打击感调优。制定开发方案。",
+      "expect": "产出三型任务（code/asset/game-feel 均有标注）：动画 Montage+通知为 asset、GAS Ability+命中判定为 code、打击感调优为 game-feel；依赖图含资产链（骨架→动画）与代码链（输入→Ability→UI）；按完整可玩路径垂直切片；每个任务含验收标准与四类验证证据之一（test/build/playtest/perf）；手感验收转译为可断言参数（如 hitstop 帧数）",
+      "category": "success",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.7
+    },
+    {
+      "id": "p-002",
+      "task": "有 GDD 和一个包含大量资产的功能（武器系统），需要并行分配给多个开发人员。拆解任务。",
+      "expect": "识别 asset 型任务（高模→LOD→导入→材质 资产链），不按代码文件数拆资产；标注可并行（独立资产）与必须串行（骨架→动画）部分；共享契约（技能与 UI 接口）先定契约再并行",
+      "category": "success",
+      "verifiable": true,
+      "min_score": 0.6
+    },
+    {
+      "id": "p-003",
+      "task": "拆解一个「打击感调优」任务，验收标准是『build 通过、引擎无报错』。",
+      "expect": "识别为 game-feel 型任务：不能只用 build 作为唯一验证，必须含 playtest 证据 + 手感参数转译（hitstop/TTK/反馈延迟）；'build 通过'只能作为辅助证据",
+      "category": "failure",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.6
+    },
+    {
+      "id": "p-004",
+      "task": "把所有资产任务按代码任务模板拆解（'涉及文件：.uasset 数量 ≤5'、验证仅 test/build），且把 L 级任务直接展开不拆。",
+      "expect": "拒绝或纠正：资产任务不得用文件数/测试命令当验收（应 asset 校验 + 引擎内检查）；手感任务不得只用 build 验证；L 级任务必须再拆（再拆信号：标题含'和'/超 3 条验收标准/触及多子系统）",
+      "category": "boundary",
+      "verifiable": true,
+      "min_score": 0.6
+    }
+  ]
+}

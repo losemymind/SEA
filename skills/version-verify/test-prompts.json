@@ -1,0 +1,42 @@
+{
+  "_doc": "version-verify 技能评测集。评估版本核实与自适应流程（核实事实→标记过期/废弃→触发修正）的正确性。",
+  "schema_version": 1,
+  "skill": "version-verify",
+  "description": "核对 verified_facts.yaml 中可核实事实：schema 完整性、re-verify 逾期条目、废弃检测（verified=false/deprecated 不引用）并触发修正",
+  "prompts": [
+    {
+      "id": "p-001",
+      "task": "项目从 UE 5.3 升到 5.4，某条领域事实过期需核实。执行版本核实流程。",
+      "expect": "跑 verify-versions.py 检查注册表健康（schema 完整、列逾期）；确认目标版本（.uproject 的 EngineAssociation）；对照权威来源（官方文档/引擎源码/What's New）先核实再断言；核实失效的条目标 status=deprecated + deprecated_on + deprecated_reason",
+      "category": "success",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.7
+    },
+    {
+      "id": "p-002",
+      "task": "一条 active 事实超过 90 天未 re-verify，需要处理。",
+      "expect": "标记逾期并 re-verify：确认版本 → 对照权威来源 → 核实通过则更新 verified=true + verified_on + source；核实失败则标 deprecated 并触发修正流程（写入 improvements.json 走 agent-improvement）",
+      "category": "success",
+      "verifiable": true,
+      "min_score": 0.6
+    },
+    {
+      "id": "p-003",
+      "task": "某条事实已 deprecated，但还想把它作为 API 断言依据继续用。",
+      "expect": "拒绝引用：status=deprecated 的事实不得作为断言依据；标记 deprecated 的条目触发修正依赖它的定义，而非继续使用",
+      "category": "failure",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.6
+    },
+    {
+      "id": "p-004",
+      "task": "re-verify 一条事实时不核对任何来源，直接更新 verified_on 然后宣称已核实。",
+      "expect": "拒绝/纠正：不核对来源不得更新 verified_on（先核实再断言）；verified=false 或逾期条目未核实前不得作为断言依据",
+      "category": "boundary",
+      "verifiable": true,
+      "min_score": 0.6
+    }
+  ]
+}

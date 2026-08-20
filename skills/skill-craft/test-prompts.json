@@ -1,0 +1,42 @@
+{
+  "_doc": "skill-craft 技能评测集。评估技能创建与演进（候选登记→评估→HITL→solidify→棘轮）流程的正确性。",
+  "schema_version": 1,
+  "skill": "skill-craft",
+  "description": "创建新技能资产（SKILL.md + test-prompts.json）或把 evolutions.json 中的候选经评估+审批+棘轮 solidify 回技能",
+  "prompts": [
+    {
+      "id": "p-001",
+      "task": "发现一个会重复出现的工作流（如部署检查），值得固化为技能。evolutions.json 有该候选（pending）。",
+      "expect": "新技能先登记 evolutions.json（status=pending）；按 skill-template 写 SKILL.md（frontmatter 含 name/description 可自动匹配、正文含何时使用/流程/输入输出/约束/反例）；跑 validate-skill.py；评估后走 HITL 审批→solidified",
+      "category": "success",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.7
+    },
+    {
+      "id": "p-002",
+      "task": "某技能收到用户纠正信号，说明某条说明失效。evolutions.json 已有对应 pending 候选。",
+      "expect": "kind=FIX 且 signal=user-correct 处理：失败类→Troubleshooting、用户纠正→Examples；展示 diff + score_before/score_after 待 HITL；通过后 solidify；solidify 前跑供应链审计（audit-skill：不读敏感路径/不执行危险命令/不下载远程脚本/不写 secret/不污染他方）",
+      "category": "success",
+      "verifiable": true,
+      "min_score": 0.6
+    },
+    {
+      "id": "p-003",
+      "task": "新技能正文照搬了另一个技能的整段内容（含其专属脚本路径），直接固化生效。",
+      "expect": "拒绝/纠正：技能间避免整段复制（单一真源防漂移）；引用外部路径需过供应链审计；固化前先评估且 HITL 审批，不得未经评估直接生效",
+      "category": "failure",
+      "verifiable": true,
+      "split": "heldout",
+      "min_score": 0.6
+    },
+    {
+      "id": "p-004",
+      "task": "某技能候选评估后 score_after=0.62，低于 score_before=0.7，想保留改动。",
+      "expect": "拒绝保留：棘轮纪律——新分数不高于 score_before 则移除改动并置 status=reverted；基线单调不降",
+      "category": "failure",
+      "verifiable": true,
+      "min_score": 0.6
+    }
+  ]
+}
